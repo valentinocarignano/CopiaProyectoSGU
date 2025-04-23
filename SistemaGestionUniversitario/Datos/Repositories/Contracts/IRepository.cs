@@ -6,7 +6,7 @@ namespace Datos.Repositories.Contracts
     {
         Task<IEnumerable<T>> FindAllAsync();
         Task<IEnumerable<T>> FindByConditionAsync(Expression<Func<T, bool>> expression);
-        Task Add(T entity);
+        Task AddAsync(T entity);
         void Update(T entity);
         void Remove(T entity);
         Task SaveAsync();

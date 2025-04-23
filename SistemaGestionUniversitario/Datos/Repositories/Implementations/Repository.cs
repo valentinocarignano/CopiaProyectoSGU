@@ -24,7 +24,7 @@ namespace Datos.Repositories.Implementations
             return await _context.Set<T>().Where(expression).ToListAsync();
         }
 
-        public async Task Add(T entity)
+        public async Task AddAsync(T entity)
         {
             await _context.Set<T>().AddAsync(entity);
         }
