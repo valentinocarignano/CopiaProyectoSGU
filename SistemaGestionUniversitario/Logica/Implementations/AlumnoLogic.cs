@@ -1,7 +1,9 @@
 ﻿using Datos.Repositories.Contracts;
 using Datos.Repositories.Implementations;
+using Entidades.DTOs;
 using Entidades.Entities;
 using Logica.Contracts;
+using System.Net;
 
 namespace Logica.Implementations
 {
@@ -54,25 +56,69 @@ namespace Logica.Implementations
             _alumnoRepository.Remove(alumnoExistente);
             await _alumnoRepository.SaveAsync();
         }
-
-        public async Task ActualizacionAlumno(string documento, ModificarAlumnoDTO alumnoActualizar)
+        public async Task ActualizacionAlumno(Usuario usuario)
         {
-            if (alumnoActualizar == null)
+            Alumno? alumnoExistente = (await _alumnoRepository.FindByConditionAsync(p => p.Usuario == usuario)).FirstOrDefault();
+
+            if (alumnoExistente == null)
             {
-                throw new ArgumentNullException("No se ha ingresado ningun profesor.");
+                throw new ArgumentException("El usuario ingresado no esta vinculado con ningun alumno.");
             }
 
-            if (alumnoActualizar.Usuario == null)
-            {
-                throw new ArgumentNullException("El alumno debe estar vinculado a un usuario.");
-            }
-
-            await AlumnoRepos.Update(alumnoActualizar.Usuario.DNI, alumnoActualizar);
+            _alumnoRepository.Update(alumnoExistente);
+            await _alumnoRepository.SaveAsync();
         }
-
-        public async Task<Alumno?> ObtenerAlumnoID(int id)
+        public async Task<List<AlumnoDTO>> ObtenerAlumnos()
         {
-            return await AlumnoRepos.GetByID(id); //Devuelve un alumno de acuerdo al Usuario.ID que se le pasa (usuario vinculado)
+            try
+            {
+                List<Alumno> listaAlumnos = (await _alumnoRepository.FindAllAsync()).ToList();
+
+                if (listaAlumnos == null)
+                {
+                    return null;
+                }
+
+                List<AlumnoDTO> listaAlumnosDTO = listaAlumnos.Select(t => new AlumnoDTO
+                {
+                    ID = t.ID,
+                    DNI = t.Usuario.DNI,
+                    Nombre = t.Usuario.Nombre,
+                    Apellido = t.Usuario.Apellido,
+                    FechaIngreso = t.FechaIngreso,
+                }).ToList();
+
+                return listaAlumnosDTO;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"{ex}");
+            };
+        }
+        public async Task<AlumnoDTO> ObtenerAlumnoDNI(string dni)
+        {
+            if (!ValidacionesCampos.DocumentoEsValido(dni))
+            {
+                throw new ArgumentException("El DNI ingresado no es valido.");
+            }
+
+            Alumno? alumno = (await _alumnoRepository.FindByConditionAsync(t => t.Usuario.DNI == dni)).FirstOrDefault();
+
+            if (alumno == null)
+            {
+                return null;
+            }
+
+            AlumnoDTO alumnoDTO = new AlumnoDTO()
+            {
+                ID = alumno.ID,
+                DNI = alumno.Usuario.DNI,
+                Nombre = alumno.Usuario.Nombre,
+                Apellido = alumno.Usuario.Apellido,
+                FechaIngreso = alumno.FechaIngreso,
+            };
+
+            return alumnoDTO;
         }
     }
 }

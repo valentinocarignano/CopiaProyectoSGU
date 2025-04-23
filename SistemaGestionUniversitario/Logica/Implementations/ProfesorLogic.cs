@@ -1,4 +1,6 @@
 ﻿using Datos.Repositories.Contracts;
+using Datos.Repositories.Implementations;
+using Entidades.DTOs;
 using Entidades.Entities;
 using Logica.Contracts;
 
@@ -53,31 +55,69 @@ namespace Logica.Implementations
             _profesorRepository.Remove(profesorExistente);
             await _profesorRepository.SaveAsync();
         }
-
-        public async Task ActualizacionProfesor(string documento, ModificarProfesorDTO profesorActualizar)
+        public async Task ActualizacionProfesor(Usuario usuario)
         {
-            if (profesorActualizar == null)
+            Profesor? profesorExistente = (await _profesorRepository.FindByConditionAsync(p => p.Usuario == usuario)).FirstOrDefault();
+
+            if(profesorExistente == null)
             {
-                throw new ArgumentNullException("No se ha ingresado ningun profesor.");
+                throw new ArgumentException("El usuario ingresado no esta vinculado con ningun profesor.");
             }
 
-            if (profesorActualizar.Usuario == null)
+            _profesorRepository.Update(profesorExistente);
+            await _profesorRepository.SaveAsync();
+        }
+        public async Task<List<ProfesorDTO>> ObtenerProfesores()
+        {
+            try
             {
-                throw new ArgumentNullException("El profesor debe estar vinculado a un usuario.");
+                List<Profesor> listaProfesores = (await _profesorRepository.FindAllAsync()).ToList();
+
+                if (listaProfesores == null)
+                {
+                    return null;
+                }
+
+                List<ProfesorDTO> listaProfesoresDTO = listaProfesores.Select(t => new ProfesorDTO
+                {
+                    ID = t.ID,
+                    DNI = t.Usuario.DNI,
+                    Nombre = t.Usuario.Nombre,
+                    Apellido = t.Usuario.Apellido,
+                    FechaInicioContrato = t.FechaInicioContrato,
+                }).ToList();
+
+                return listaProfesoresDTO;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"{ex}");
+            };
+        }
+        public async Task<ProfesorDTO> ObtenerProfesorDNI(string dni)
+        {
+            if (!ValidacionesCampos.DocumentoEsValido(dni))
+            {
+                throw new ArgumentException("El DNI ingresado no es valido.");
             }
 
-            await ProfesorRepos.Update(profesorActualizar.Usuario.DNI, profesorActualizar);
+            Profesor? profesor = (await _profesorRepository.FindByConditionAsync(t => t.Usuario.DNI == dni)).FirstOrDefault();
 
-        }
+            if (profesor == null)
+            {
+                return null;
+            }
 
-        public async Task<List<Profesor>> ObtenerProfesores()
-        {
-            return await ProfesorRepos.Get();
-        }
+            ProfesorDTO profesorDTO = new ProfesorDTO()
+            {
+                ID = profesor.ID,
+                DNI = profesor.Usuario.DNI,
+                Nombre = profesor.Usuario.Nombre,
+                Apellido = profesor.Usuario.Apellido,
+                FechaInicioContrato = profesor.FechaInicioContrato,
+            };
 
-        public async Task<Profesor?> ObtenerProfesorID(int id)
-        {
-            return await ProfesorRepos.GetByID(id); //Devuelve un profesor de acuerdo al Usuario.ID que se le pasa (usuario vinculado)
+            return profesorDTO;
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿
-
-using Datos.Repositories.Contracts;
+﻿using Datos.Repositories.Contracts;
 using Entidades.DTOs;
 using Entidades.Entities;
 using Logica.Contracts;
@@ -143,61 +141,49 @@ namespace Logica.Implementations
             _usuarioRepository.Remove(usuarioEliminar);
             await _usuarioRepository.SaveAsync();
         }
-
-        public async Task ActualizacionUsuario(string documento, string nombre, string apellido, string caracteristicaTelefono, string numeroTelefono, string localidad, string direccion, string rolUsuario)
+        public async Task<UsuarioDTO> ActualizacionUsuario(string documento, string nombre, string apellido, string caracteristicaTelefono, string numeroTelefono, string localidad, string direccion, string rolUsuario)
         {
-            RolUsuarioDTO? rolExistente = await RolUsuarioRepos.GetByDescripcion(rolUsuario);
+            List<string>? camposErroneos = new List<string>();
 
-            ModificarUsuarioDTO usuarioActualizar = new ModificarUsuarioDTO()
-            {
-                DNI = documento,
-                Nombre = nombre,
-                Apellido = apellido,
-                CaracteristicaTelefono = caracteristicaTelefono,
-                NumeroTelefono = numeroTelefono,
-                Localidad = localidad,
-                Direccion = direccion,
-                RolUsuario = rolExistente
-            };
+            RolUsuario? rolExistente = (await _rolUsuarioRepository.FindByConditionAsync(r => r.Descripcion == rolUsuario)).FirstOrDefault();
+            Usuario? usuarioExistente = (await _usuarioRepository.FindByConditionAsync(r => r.DNI == documento)).FirstOrDefault();
 
-            if (string.IsNullOrEmpty(documento) || !ValidacionesCampos.DocumentoEsValido(documento))
+            if (string.IsNullOrEmpty(documento) || !ValidacionesCampos.DocumentoEsValido(documento) || usuarioExistente == null)
             {
-                throw new ArgumentException("El documento ingresado no es válido.");
+                throw new ArgumentException("El documento ingresado no es válido o el usuario con dicho documento no existe.");
             }
 
-            List<string> camposErroneos = new List<string>();
-
-            if (!ValidacionesCampos.DocumentoEsValido(usuarioActualizar.DNI) || usuarioActualizar.DNI != documento)
+            if (!ValidacionesCampos.DocumentoEsValido(documento) || usuarioExistente.DNI != documento)
             {
                 camposErroneos.Add("DNI");
             }
 
-            if (!ValidacionesCampos.TextoEsValido(usuarioActualizar.Nombre))
+            if (!ValidacionesCampos.TextoEsValido(nombre))
             {
                 camposErroneos.Add("Nombre");
             }
 
-            if (!ValidacionesCampos.TextoEsValido(usuarioActualizar.Apellido))
+            if (!ValidacionesCampos.TextoEsValido(apellido))
             {
                 camposErroneos.Add("Apellido");
             }
 
-            if (!ValidacionesCampos.NumeroTelefonoEsValido(usuarioActualizar.CaracteristicaTelefono, usuarioActualizar.NumeroTelefono))
+            if (!ValidacionesCampos.NumeroTelefonoEsValido(caracteristicaTelefono, numeroTelefono))
             {
                 camposErroneos.Add("Característica/Teléfono");
             }
 
-            if (!ValidacionesCampos.TextoEsValido(usuarioActualizar.Localidad))
+            if (!ValidacionesCampos.TextoEsValido(localidad))
             {
                 camposErroneos.Add("Localidad");
             }
 
-            if (usuarioActualizar.Direccion == null)
+            if (direccion == null)
             {
                 camposErroneos.Add("Dirección");
             }
 
-            if (usuarioActualizar.RolUsuario == null)
+            if (rolExistente == null)
             {
                 camposErroneos.Add("Rol Usuario");
             }
@@ -207,27 +193,61 @@ namespace Logica.Implementations
                 throw new ArgumentException("Se encontraron errores en los siguientes campos: " + string.Join(", ", camposErroneos));
             }
 
-            if (usuarioActualizar.RolUsuario.ID == 2)
+            usuarioExistente.Nombre = nombre;
+            usuarioExistente.Apellido = apellido;
+            usuarioExistente.CaracteristicaTelefono = caracteristicaTelefono;
+            usuarioExistente.NumeroTelefono = numeroTelefono;
+            usuarioExistente.Localidad = localidad;
+            usuarioExistente.Direccion = direccion;
+            usuarioExistente.RolUsuario = rolExistente;
+
+            _usuarioRepository.Update(usuarioExistente);
+
+            if (usuarioExistente.RolUsuario.ID == 2)
             {
-                await _profesorLogic.ActualizacionProfesor(documento, new ModificarProfesorDTO { Usuario = usuarioActualizar });
+                await _profesorLogic.ActualizacionProfesor(usuarioExistente);
             }
-            else if (usuarioActualizar.RolUsuario.ID == 3)
+            else if (usuarioExistente.RolUsuario.ID == 3)
             {
-                await _alumnoLogic.ActualizacionAlumno(documento, new ModificarAlumnoDTO { Usuario = usuarioActualizar });
+                await _alumnoLogic.ActualizacionAlumno(usuarioExistente);
             }
 
-            await UsuarioRepos.Update(usuarioActualizar.DNI, usuarioActualizar);
+            await _usuarioRepository.SaveAsync();
+
+            UsuarioDTO usuarioActualizadoDTO = new UsuarioDTO()
+            {
+                ID = usuarioExistente.ID,
+                DNI = usuarioExistente.DNI,
+                Nombre = usuarioExistente.Nombre,
+                Apellido = usuarioExistente.Apellido,
+                CaracteristicaTelefono = usuarioExistente.CaracteristicaTelefono,
+                NumeroTelefono = usuarioExistente.NumeroTelefono,
+                Localidad = usuarioExistente.Localidad,
+                Direccion = usuarioExistente.Direccion,
+                RolUsuarioDescripcion = usuarioExistente.RolUsuario.Descripcion
+            };
+
+            return usuarioActualizadoDTO;
         }
-
-        //TODO: recibir dni buscar usuario, passwordActual y nuevaPAssword. si existe dni y passwordActual == usuario.Password, actualizar
         public async Task ActualizacionPassword(string dni, string actualPassword, string nuevaPassword)
         {
-            usuario.Password = PasswordHelper.HashPassword(nuevaPassword);
+            Usuario? usuarioExistente = (await _usuarioRepository.FindByConditionAsync(r => r.DNI == dni)).FirstOrDefault();
 
-            _usuarioRepository.Update(usuario);
+            if (string.IsNullOrEmpty(dni) || !ValidacionesCampos.DocumentoEsValido(dni) || usuarioExistente == null)
+            {
+                throw new ArgumentException("El documento ingresado no es válido o el usuario con dicho documento no existe.");
+            }
+
+            if (!PasswordHelper.VerifyPassword(actualPassword, usuarioExistente.Password))
+            {
+                throw new ArgumentException("La contraseña ingresada es incorrecta.");
+            }
+
+            usuarioExistente.Password = PasswordHelper.HashPassword(nuevaPassword);
+
+            _usuarioRepository.Update(usuarioExistente);
             await _usuarioRepository.SaveAsync();
         }
-
         public async Task<List<UsuarioDTO>> ObtenerUsuarios()
         {
             try

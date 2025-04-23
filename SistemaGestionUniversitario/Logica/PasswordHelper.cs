@@ -16,5 +16,4 @@
             return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
         }
     }
-
 }

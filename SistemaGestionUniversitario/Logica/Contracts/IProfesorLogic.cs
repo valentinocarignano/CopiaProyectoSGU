@@ -6,7 +6,7 @@ namespace Logica.Contracts
     {
         Task AltaProfesor(Usuario usuario, DateTime? fechaInicioContrato);
         Task BajaProfesor(string documento);
-        //Task ActualizacionProfesor(string documento, ModificarProfesorDTO profesorActualizar);
+        Task ActualizacionProfesor(Usuario usuario);
         Task<List<Profesor>> ObtenerProfesores();
         Task<Profesor?> ObtenerProfesorID(int id);
     }
