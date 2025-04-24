@@ -1,6 +1,6 @@
 ﻿namespace Entidades.Entities
 {
-    public class Horario: EntityBase
+    public class Horario : EntityBase
     {
         public string Descripcion { get; set; }
 

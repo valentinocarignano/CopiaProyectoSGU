@@ -13,29 +13,29 @@
         public string _descripcionDia;
         public string _descripcionHorario;
 
-        public string ObtenerDescripcionDia()
+        public string GetDescripcionDia()
         {
             return _descripcionDia; 
         }
 
-        public void EstablecerDescripcionDia(string descripcion)
+        public void SetDescripcionDia(string descripcion)
         {
             _descripcionDia = descripcion;
         }
 
-        public string ObtenerDescripcionHorario()
+        public string GetDescripcionHorario()
         {
             return _descripcionHorario;
         }
 
-        public void EstablecerDescripcionHorario(string descripcion)
+        public void SetDescripcionHorario(string descripcion)
         {
             _descripcionHorario = descripcion;
         }
-        public void AsignarDescripcionDiaHorario(DiaHorario diaHorario, string diaDescripcion, string horarioDescripcion)
+        public void SetDescripcionDiaHorario(DiaHorario diaHorario, string diaDescripcion, string horarioDescripcion)
         {
-            diaHorario.EstablecerDescripcionDia(diaDescripcion);
-            diaHorario.EstablecerDescripcionHorario(horarioDescripcion);
+            diaHorario.SetDescripcionDia(diaDescripcion);
+            diaHorario.SetDescripcionHorario(horarioDescripcion);
         }
 
         #endregion

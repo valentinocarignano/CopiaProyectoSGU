@@ -1,10 +1,11 @@
-﻿using Entidades.Entities;
+﻿using Entidades.DTOs;
+using Entidades.Entities;
 
 namespace Logica.Contracts
 {
     public interface IDiaHorarioLogic
     {
-        Task<List<DiaHorario>> ObtenerDiaHorario();
-        Task<DiaHorario> ObtenerDiaHorarioID(int id);
+        Task<List<DiaHorarioDTO>> ObtenerDiasHorarios();
+        Task<DiaHorarioDTO> ObtenerDiaHorarioID(int id);
     }
 }

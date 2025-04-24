@@ -1,10 +1,10 @@
-﻿using Entidades.Entities;
+﻿using Entidades.DTOs;
 
 namespace Logica.Contracts
 {
     public interface IDiaLogic
     {
-        Task<List<Dia>> ObtenerDias();
-        Task<Dia> ObtenerDiasPorId(int IdDia);
+        Task<List<DiaDTO>> ObtenerDias();
+        Task<DiaDTO> ObtenerDiaId(int id);
     }
 }
