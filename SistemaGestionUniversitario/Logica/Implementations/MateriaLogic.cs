@@ -129,22 +129,9 @@ namespace Negocio.Implementations
             _materiaRepository.Remove(materiaEliminar);
             await _materiaRepository.SaveAsync();
         }
-
-        //TODO: arreglar actualizacionmateria
-        public async Task ActualizacionMateria(int id, string nombre, List<int> listaProfesores, List<int> listaHorarios, string modalidad, string anio)
+        public async Task<MateriaDTO> ActualizacionMateria(int id, string nombre, List<int> listaProfesoresID, List<int> listaDiasHorariosID, string modalidad, string anio)
         {
-            ModificarMateriaDTO materiaActualizar = new ModificarMateriaDTO()
-            {
-                Nombre = nombre,
-                Profesores = listaProfesores,
-                DiaHorarioIds = listaHorarios,
-                Modalidad = modalidad,
-                Anio = Int32.Parse(anio)
-            };
-
-            // Verifica si ya existe una materia con el mismo nombre
-            var materiaExistente = await MateriaRepos.GetByName(nombre);
-
+            Materia? materiaExistente = (await _materiaRepository.FindByConditionAsync(m => m.Nombre.ToLower() == nombre.ToLower())).FirstOrDefault();
             if (materiaExistente != null && materiaExistente.ID != id)
             {
                 throw new ArgumentException("Ya existe una materia con el nombre ingresado.");
@@ -152,27 +139,27 @@ namespace Negocio.Implementations
 
             List<string> camposErroneos = new List<string>();
 
-            if (!ValidacionesCampos.TextoEsValido(materiaActualizar.Nombre))
+            if (!ValidacionesCampos.TextoEsValido(nombre))
             {
                 camposErroneos.Add("nombre");
             }
 
-            if (materiaActualizar.Anio < 1 || materiaActualizar.Anio > 3)
+            if (!Int32.TryParse(anio, out int anioParse) || anioParse < 1 || anioParse > 3)
             {
-                camposErroneos.Add("año");
+                camposErroneos.Add("Año");
             }
 
-            if (!ValidacionesCampos.ModalidadMateriaEsValida(materiaActualizar.Modalidad))
+            if (!ValidacionesCampos.ModalidadMateriaEsValida(modalidad))
             {
                 camposErroneos.Add("modalidad");
             }
 
-            if (materiaActualizar.Profesores.Count == 0)
+            if (listaProfesoresID.Count == 0)
             {
                 camposErroneos.Add("Profesor/es");
             }
 
-            if (materiaActualizar.DiaHorarioIds.Count == 0)
+            if (listaDiasHorariosID.Count == 0)
             {
                 camposErroneos.Add("Horarios");
             }
@@ -182,9 +169,67 @@ namespace Negocio.Implementations
                 throw new ArgumentException("Los siguientes campos son invalidos: ", string.Join(", ", camposErroneos));
             }
 
-            await  MateriaRepos.Update(materiaActualizar.Nombre, materiaActualizar);
-        }
+            // Valida que no haya dos materias del mismo año en el mismo horario (excluyendo la misma materia que se está actualizando)
+            List<Materia> listaMaterias = (await _materiaRepository.FindAllAsync()).Where(m => m.ID != materiaExistente.ID).ToList();
+            List<DiaHorario> listaDiasHorarios = new List<DiaHorario>();
+            foreach (int diaHorarioID in listaDiasHorariosID)
+            {
+                bool existeSolapamiento = listaMaterias.Any(m => m.Anio == anioParse && m.DiaHorario.Any(d => d.ID == diaHorarioID));
+                if(existeSolapamiento)
+                {
+                    throw new ArgumentException($"Ya existe una materia para el año {anioParse} en el horario seleccionado.");
+                }
 
+                DiaHorario? diaHorario = (await _diaHorarioRepository.FindByConditionAsync(dh => dh.ID == diaHorarioID)).FirstOrDefault();
+                if (diaHorario == null)
+                {
+                    throw new ArgumentException($"No se encontró el horario con ID {diaHorarioID}.");
+                }
+
+                listaDiasHorarios.Add(diaHorario);
+            }
+
+            // Valida que un profesor no esté asignado a dos materias con el mismo horario (excepto esta materia)
+            List<Profesor> listaProfesores = new List<Profesor>();
+            foreach (int profesorID in listaProfesoresID)
+            {
+                Profesor? profesor = (await _profesorRepository.FindByConditionAsync(p => p.ID == profesorID)).FirstOrDefault();
+
+                if (profesor == null)
+                {
+                    throw new ArgumentException($"No se encontró el profesor con ID {profesorID}");
+                }
+
+                List<Materia> materiasDadasPorProfesor = (await _materiaRepository.FindAllAsync()).Where(m => m.ID != materiaExistente.ID && m.Profesores.Any(p => p.ID == profesorID)).ToList();
+
+                bool haySolapamiento = materiasDadasPorProfesor.Any(m => m.DiaHorario.Any(dh => listaDiasHorariosID.Contains(dh.ID)));
+
+                if (haySolapamiento)
+                {
+                    throw new ArgumentException($"El profesor con ID { profesor.ID } ya tiene asignada otra materia en uno de los horarios seleccionados.");
+                }
+
+                listaProfesores.Add(profesor);
+            }
+
+            materiaExistente.Profesores = listaProfesores;
+            materiaExistente.DiaHorario = listaDiasHorarios;
+
+            _materiaRepository.Update(materiaExistente);
+            await _materiaRepository.SaveAsync();
+
+            MateriaDTO materiaExistenteDTO = new MateriaDTO
+            {
+                ID = materiaExistente.ID,
+                Nombre = materiaExistente.Nombre,
+                Modalidad = materiaExistente.Modalidad,
+                Anio = materiaExistente.Anio,
+                NombresProfesores = materiaExistente.Profesores.Select(p => p.Usuario.Nombre).ToList(),
+                DescripcionDiasHorarios = materiaExistente.DiaHorario.Select(dh => dh.GetDescripcionDiaHorario()).ToList(),
+            };
+
+            return materiaExistenteDTO;
+        }
         public async Task<List<MateriaDTO>> ObtenerMaterias()
         {
             try
