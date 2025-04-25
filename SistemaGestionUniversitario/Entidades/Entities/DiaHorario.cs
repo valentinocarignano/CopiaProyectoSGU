@@ -32,6 +32,12 @@
         {
             _descripcionHorario = descripcion;
         }
+
+        public string GetDescripcionDiaHorario()
+        {
+            return _descripcionDia + ' ' + _descripcionHorario;
+        }
+
         public void SetDescripcionDiaHorario(DiaHorario diaHorario, string diaDescripcion, string horarioDescripcion)
         {
             diaHorario.SetDescripcionDia(diaDescripcion);
