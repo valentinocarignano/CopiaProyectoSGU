@@ -1,11 +1,12 @@
-﻿using Entidades.Entities;
+﻿using Entidades.DTOs;
+using Entidades.Entities;
 
 namespace Logica.Contracts
 {
     public interface IInscripcionLogic
     {
-        void AltaInscripcion(Inscripcion inscripcionAgregar);
-        Task<List<Inscripcion>> ObtenerInscripciones();
-        void BajaInscripcion(int idMateria, int idAlumno);
+        Task AltaInscripcion(string IdAlumno, string IdMateria);
+        Task BajaInscripcion(string IdMateria, string IdAlumno);
+        Task<List<InscripcionDTO>> ObtenerInscripciones();
     }
 }

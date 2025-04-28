@@ -8,14 +8,10 @@ namespace Logica.Implementations
     public class DiaHorarioLogic : IDiaHorarioLogic
     {
         private IDiaHorarioRepository _diaHorarioRepository;
-        private IDiaRepository _diaRepository;
-        private IHorarioRepository _horarioRepository;
 
-        public DiaHorarioLogic(IDiaHorarioRepository diaHorarioRepository, IDiaRepository diaRepository, IHorarioRepository horarioRepository)
+        public DiaHorarioLogic(IDiaHorarioRepository diaHorarioRepository)
         {
-            _diaHorarioRepository = diaHorarioRepository;
-            _diaRepository = diaRepository;
-            _horarioRepository = horarioRepository;
+            _diaHorarioRepository = diaHorarioRepository;;
         }
 
         public async Task<List<DiaHorarioDTO>> ObtenerDiasHorarios()
@@ -43,7 +39,7 @@ namespace Logica.Implementations
                 throw new Exception($"{ex}");
             };
         }
-        public async Task<DiaHorarioDTO> ObtenerDiaHorarioId(int id)
+        public async Task<DiaHorarioDTO> ObtenerDiaHorarioID(int id)
         {
             DiaHorario? diaHorario = (await _diaHorarioRepository.FindByConditionAsync(t => t.ID == id)).FirstOrDefault();
 
