@@ -3,6 +3,7 @@ using Entidades.DTOs;
 using Entidades.Entities;
 using Logica;
 using Logica.Contracts;
+using Logica.Implementations;
 
 namespace Negocio.Implementations
 {
@@ -11,12 +12,14 @@ namespace Negocio.Implementations
         IMateriaRepository _materiaRepository;
         IProfesorRepository _profesorRepository;
         IDiaHorarioRepository _diaHorarioRepository;
+        IDiaHorarioLogic _diaHorarioLogic;
 
-        public MateriaLogic(IMateriaRepository materiaRepository, IProfesorRepository profesorRepository, IDiaHorarioRepository diaHorarioRepository)
+        public MateriaLogic(IMateriaRepository materiaRepository, IProfesorRepository profesorRepository, IDiaHorarioRepository diaHorarioRepository, IDiaHorarioLogic diaHorarioLogic)
         {
             _materiaRepository = materiaRepository;
             _profesorRepository = profesorRepository;
             _diaHorarioRepository = diaHorarioRepository;
+            _diaHorarioLogic = diaHorarioLogic;
         }
         
         public async Task AltaMateria(string nombre, List<int> listaProfesoresID, List<int> listaDiasHorariosID, string modalidad, string anio)
@@ -218,6 +221,13 @@ namespace Negocio.Implementations
             _materiaRepository.Update(materiaExistente);
             await _materiaRepository.SaveAsync();
 
+            List<string> listaDescripcionDiasHorarios = new List<string>();
+            foreach(DiaHorario diaHorario in materiaExistente.DiaHorario)
+            {
+                listaDescripcionDiasHorarios.Add(await _diaHorarioLogic.ObtenerDescripcionDiaHorarioPorDiaHorario(diaHorario));
+
+            }
+
             MateriaDTO materiaExistenteDTO = new MateriaDTO
             {
                 ID = materiaExistente.ID,
@@ -225,7 +235,7 @@ namespace Negocio.Implementations
                 Modalidad = materiaExistente.Modalidad,
                 Anio = materiaExistente.Anio,
                 NombresProfesores = materiaExistente.Profesores.Select(p => p.Usuario.Nombre).ToList(),
-                DescripcionDiasHorarios = materiaExistente.DiaHorario.Select(dh => dh.GetDescripcionDiaHorario()).ToList(),
+                DescripcionDiasHorarios = listaDescripcionDiasHorarios
             };
 
             return materiaExistenteDTO;
@@ -241,6 +251,15 @@ namespace Negocio.Implementations
                     return null;
                 }
 
+                List<string> listaDescripcionDiasHorarios = new List<string>();
+                foreach(Materia materia in listaMaterias)
+                {
+                    foreach (DiaHorario diaHorario in materia.DiaHorario)
+                    {
+                        listaDescripcionDiasHorarios.Add(await _diaHorarioLogic.ObtenerDescripcionDiaHorarioPorDiaHorario(diaHorario));
+                    }
+                }      
+
                 List<MateriaDTO> listaMateriasDTO = listaMaterias.Select(t => new MateriaDTO
                 {
                     ID = t.ID,
@@ -248,7 +267,7 @@ namespace Negocio.Implementations
                     Anio = t.Anio,
                     Modalidad = t.Modalidad,
                     NombresProfesores = t.Profesores.Select(p => p.Usuario.Nombre).ToList(),
-                    DescripcionDiasHorarios = t.DiaHorario.Select(dh => dh.GetDescripcionDiaHorario()).ToList(),
+                    DescripcionDiasHorarios = listaDescripcionDiasHorarios
                 }).ToList();
 
                 return listaMateriasDTO;
@@ -267,6 +286,12 @@ namespace Negocio.Implementations
                 return null;
             }
 
+            List<string> listaDescripcionDiasHorarios = new List<string>();
+            foreach (DiaHorario diaHorario in materia.DiaHorario)
+            {
+                listaDescripcionDiasHorarios.Add(await _diaHorarioLogic.ObtenerDescripcionDiaHorarioPorDiaHorario(diaHorario));
+            }
+
             MateriaDTO materiaDTO = new MateriaDTO()
             {
                 ID = materia.ID,
@@ -274,7 +299,7 @@ namespace Negocio.Implementations
                 Anio = materia.Anio,
                 Modalidad = materia.Modalidad,
                 NombresProfesores = materia.Profesores.Select(p => p.Usuario.Nombre).ToList(),
-                DescripcionDiasHorarios = materia.DiaHorario.Select(dh => dh.GetDescripcionDiaHorario()).ToList(),
+                DescripcionDiasHorarios = listaDescripcionDiasHorarios
             };
 
             return materiaDTO;

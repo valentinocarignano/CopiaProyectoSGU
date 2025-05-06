@@ -17,7 +17,6 @@ namespace Datos.Contexts
         public DbSet<DiaHorarioMateria> DiaHorarioMateria { get; set; }
         public DbSet<Examen> Examen { get; set; }
         public DbSet<Horario> Horario { get; set; }
-        public DbSet<Imagen> Imagen { get; set; }
         public DbSet<Inscripcion> Inscripcion { get; set; }
         public DbSet<Materia> Materia { get; set; }
         public DbSet<NotaAlumno> NotaAlumno { get; set; }
@@ -120,14 +119,6 @@ namespace Datos.Contexts
             {
                 entity.HasKey(e => e.ID)
                     .HasName("PK_ID_HORARIO");
-
-                entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("GETDATE()");
-            });
-            modelBuilder.Entity<Imagen>(entity =>
-            {
-                entity.HasKey(e => e.ID)
-                    .HasName("PK_ID_IMAGEN");
 
                 entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("GETDATE()");

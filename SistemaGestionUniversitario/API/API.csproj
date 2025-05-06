@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Datos\Datos.csproj" />
+    <ProjectReference Include="..\Logica\Logica.csproj" />
   </ItemGroup>
 
 </Project>
