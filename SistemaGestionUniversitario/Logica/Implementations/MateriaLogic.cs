@@ -3,7 +3,6 @@ using Entidades.DTOs;
 using Entidades.Entities;
 using Logica;
 using Logica.Contracts;
-using Logica.Implementations;
 
 namespace Negocio.Implementations
 {

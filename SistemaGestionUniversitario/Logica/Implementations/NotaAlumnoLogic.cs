@@ -1,4 +1,9 @@
-﻿using Negocio.Contracts;
+﻿using Datos.Repositories.Contracts;
+using Datos.Repositories.Implementations;
+using Entidades.DTOs;
+using Entidades.Entities;
+using Logica.Contracts;
+using Negocio.Contracts;
 using Shared.Entities;
 using Shared.Repositories;
 using Shared.Repositories.Contracts;
@@ -23,7 +28,7 @@ namespace Logica.Implementations
             _examenRepository = examenRepository;
         }
 
-        public void AltaNotaAlumno(int nota, int idAlumno, int idExamen)
+        public async Task AltaNotaAlumno(int nota, int idAlumno, int idExamen)
         {
             NotaAlumno notaAlumnoAgregar = new NotaAlumno()
             {
@@ -72,26 +77,7 @@ namespace Logica.Implementations
             _notaAlumnoRepository.Create(notaAlumnoNueva);
             _notaAlumnoRepository.Save();
         }
-
-        public async Task<List<NotaAlumno>> ObtenerNotas()
-        {
-            return await _notaAlumnoRepository.GetAll();
-        }
-
-        public void BajaNotaAlumno(int idAlumno, int idExamen)
-        {
-            NotaAlumno? notaAlumnoEliminar = _notaAlumnoRepository.FindByCondition(p => p.IdAlumno == idAlumno && p.IdExamen == idExamen).FirstOrDefault();
-
-            if (notaAlumnoEliminar == null)
-            {
-                throw new InvalidOperationException("La nota que se desea eliminar no existe.");
-            }
-
-            _notaAlumnoRepository.Delete(notaAlumnoEliminar);
-            _notaAlumnoRepository.Save();
-        }
-
-        public void ActualizacionNotaAlumno(int nota, int idAlumno, int idExamen)
+        public async Task<NotaAlumnoDTO> ActualizacionNotaAlumno(int nota, int idAlumno, int idExamen)
         {
             NotaAlumno notaAlumnoActualizar = new NotaAlumno()
             {
@@ -137,6 +123,59 @@ namespace Logica.Implementations
 
             _notaAlumnoRepository.Update(notaAlumnoExistente);
             _notaAlumnoRepository.Save();
+        }
+        public async Task BajaNotaAlumno(int idAlumno, int idExamen)
+        {
+            NotaAlumno? notaAlumnoEliminar = _notaAlumnoRepository.FindByCondition(p => p.IdAlumno == idAlumno && p.IdExamen == idExamen).FirstOrDefault();
+
+            if (notaAlumnoEliminar == null)
+            {
+                throw new InvalidOperationException("La nota que se desea eliminar no existe.");
+            }
+
+            _notaAlumnoRepository.Delete(notaAlumnoEliminar);
+            _notaAlumnoRepository.Save();
+        }
+        public async Task<List<NotaAlumnoDTO>> ObtenerNotas()
+        {
+            try
+            {
+                List<NotaAlumno> listaNotas = (await _notaAlumnoRepository.FindAllAsync()).ToList();
+
+                if (listaNotas == null)
+                {
+                    return null;
+                }
+
+                List<string> listaNombresAlumnos = new List<string>();
+                foreach (NotaAlumno nota in listaNotas)
+                {
+                    foreach (DiaHorario diaHorario in materia.DiaHorario)
+                    {
+                        listaDescripcionDiasHorarios.Add(await _diaHorarioLogic.ObtenerDescripcionDiaHorarioPorDiaHorario(diaHorario));
+                    }
+                }
+
+                List<NotaAlumnoDTO> listaNotasDTO = listaNotas.Select(t => new NotaAlumnoDTO
+                {
+                    ID = t.ID,
+                    AlumnoNombre = t.
+                }).ToList();
+
+                return listaNotasDTO;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"{ex}");
+            };
+        }
+        public async Task<List<NotaAlumnoDTO>> ObtenerNotasPorMateria(int idMateria)
+        {
+            return await _notaAlumnoRepository.GetAll();
+        }
+        public async Task<List<NotaAlumnoDTO>> ObtenerNotasPorAlumno(int idAlumno)
+        {
+            return await _notaAlumnoRepository.GetAll();
         }
     }
 }
