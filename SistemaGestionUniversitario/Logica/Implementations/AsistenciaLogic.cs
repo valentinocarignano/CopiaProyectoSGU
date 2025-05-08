@@ -1,98 +1,165 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Negocio.Contracts;
-using Shared.Entities;
-using Shared.Repositories;
-using Shared.Repositories.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Logica.Contracts;
+using Datos.Repositories.Contracts;
+using Entidades.Entities;
+using Entidades.DTOs;
+using Datos.Repositories.Implementations;
 
 namespace Logica.Implementations
 {
     public class AsistenciaLogic : IAsistenciaLogic
     {
         IAsistenciaRepository _asistenciaRepository;
+        IAlumnoRepository _alumnoRepository;
+        IMateriaRepository _materiaRepository;
+        IInscripcionRepository _inscripcionRepository;
+        IDiaHorarioRepository _diaHorarioRepository;
+        IDiaRepository _diaRepository;
+        IHorarioRepository _horarioRepository;
+        IDiaHorarioMateriaRepository _diaHorarioMateriaRepository;
 
-        public AsistenciaLogic(IAsistenciaRepository asistenciaRepository)
+
+        public AsistenciaLogic(IAsistenciaRepository asistenciaRepository, IAlumnoRepository alumnoRepository, IMateriaRepository materiaRepository, IInscripcionRepository inscripcionRepository, IDiaHorarioRepository diaHorarioRepository, IDiaRepository diaRepository, IHorarioRepository horarioRepository, IDiaHorarioMateriaRepository diaHorarioMateriaRepository)
         {
             _asistenciaRepository = asistenciaRepository;
+            _alumnoRepository = alumnoRepository;
+            _materiaRepository = materiaRepository;
+            _inscripcionRepository = inscripcionRepository;
+            _diaHorarioRepository = diaHorarioRepository;
+            _diaRepository = diaRepository;
+            _horarioRepository = horarioRepository;
+            _diaHorarioMateriaRepository = diaHorarioMateriaRepository;
+            
         }
 
-        public void AltaAsistencia(Asistencia asistenciaAgregar)
+        public async Task AltaAsistencia(int idinscripcion, int iddiahorariomateria, bool estado, DateTime fecha)
         {
-            Asistencia asistenciaNueva = new Asistencia();
+            List<string> camposErroneos = new List<string>();
 
-            if (asistenciaAgregar == null)
+            if (idinscripcion == null)
             {
-                throw new ArgumentNullException("No se ha ingresado ninguna asistencia.");
+                camposErroneos.Add("id");
             }
 
-            if (asistenciaAgregar.IdInscripcion == null)
+            if (iddiahorariomateria == null)
             {
-                throw new ArgumentNullException("El examen debe estar vinculado a una inscripcion.");
+                camposErroneos.Add("id DiaHorarioMateria");
             }
 
-            if (asistenciaAgregar.IdDiaHorarioMateria == null)
+            if (estado == null)
             {
-                throw new ArgumentNullException("El examen debe estar vinculado a un dia y horario.");
+                camposErroneos.Add("Estado");
             }
 
-            if (asistenciaAgregar.Estado == null)
+            if (fecha == null)
             {
-                throw new ArgumentNullException("La asistencia debe tener un estado.");
+                camposErroneos.Add("Fecha");
+            }
+            if (camposErroneos.Count > 0)
+            {
+                throw new ArgumentException("Los siguientes campos son inválidos: ", string.Join(", ", camposErroneos));
             }
 
-            if (asistenciaAgregar.Fecha == null)
-            {
-                throw new ArgumentNullException("La asistencia debe tener una fecha.");
-            }
-
-            Asistencia? asistenciaExistente = _asistenciaRepository.FindByCondition(p => p.IdDiaHorarioMateria == asistenciaAgregar.IdDiaHorarioMateria && p.IdInscripcion == asistenciaAgregar.IdInscripcion).FirstOrDefault();
+            Asistencia? asistenciaExistente = (await _asistenciaRepository.FindByConditionAsync(p => p.IdDiaHorarioMateria == iddiahorariomateria && p.IdInscripcion == idinscripcion)).FirstOrDefault();
 
             if (asistenciaExistente != null)
             {
                 throw new InvalidOperationException("Ya existe una asistencia registrada para la misma materia, día y hora.");
             }
 
-            asistenciaNueva.IdInscripcion = asistenciaAgregar.IdInscripcion;
-            asistenciaNueva.IdDiaHorarioMateria = asistenciaAgregar.IdDiaHorarioMateria;
-            asistenciaNueva.Estado = asistenciaAgregar.Estado;
-            asistenciaNueva.Fecha = asistenciaAgregar.Fecha;
-
-            _asistenciaRepository.Create(asistenciaNueva);
-            _asistenciaRepository.Save();
+            Asistencia asistenciaNueva = new Asistencia()
+            {
+                IdInscripcion = idinscripcion,
+                IdDiaHorarioMateria = iddiahorariomateria,
+                Estado = estado,
+                Fecha = fecha,
+            };
+            await _asistenciaRepository.AddAsync(asistenciaNueva);
+            await _asistenciaRepository.SaveAsync();
         }
 
-        public void ActualizarAsistencia(Asistencia asistenciaActualizar, int IdInscripcion)
+        public async Task<AsistenciaDTO> ActualizarAsistencia(int idasistencia, bool estado, string dia, string horario, string materia, string nombrealumno, DateTime fecha)
         {
 
-            if (asistenciaActualizar == null)
+            if (idasistencia == null)
             {
                 throw new ArgumentNullException("No se ha ingresado ninguna asistencia.");
             }
 
-            if (asistenciaActualizar.IdInscripcion == null)
+            if (dia == null)
             {
-                throw new ArgumentNullException("El examen debe estar vinculado a una inscripcion.");
+                throw new ArgumentNullException("No se ha ingresado ningun dia");
             }
 
-            if (asistenciaActualizar.IdDiaHorarioMateria == null)
+            if (horario == null)
             {
-                throw new ArgumentNullException("El examen debe estar vinculado a un dia y horario.");
+                throw new ArgumentNullException("No se ha ingresado ningun horario.");
+            }
+            
+            if(materia == null)
+            {
+                throw new ArgumentNullException("No se ha ingresado ninguna materia.");
             }
 
-            Asistencia? asistenciaExistente = _asistenciaRepository.FindByCondition(p => p.IdDiaHorarioMateria == asistenciaActualizar.IdDiaHorarioMateria && p.IdInscripcion == asistenciaActualizar.IdInscripcion).SingleOrDefault();
+            var alumnos = await _alumnoRepository.FindByConditionAsync(a => (a.Usuario.Nombre + " " + a.Usuario.Apellido) == nombrealumno);
+            var alumno = alumnos.SingleOrDefault();
+
+            if (alumno == null)
+                throw new InvalidOperationException("No se encontró un alumno con ese nombre.");
+
+            var materias = await _materiaRepository.FindByConditionAsync(m => m.Nombre == materia);
+            var materiaEntidad = materias.SingleOrDefault();
+            if (materiaEntidad == null)
+                throw new InvalidOperationException("No se encontró la materia.");
+
+            var inscripciones = await _inscripcionRepository.FindByConditionAsync(i => i.IdAlumno == alumno.ID && i.IdMateria == materiaEntidad.ID);
+            var inscripcion = inscripciones.SingleOrDefault();
+
+            if (inscripcion == null)
+                throw new InvalidOperationException("El alumno no está inscripto en esa materia.");
+
+            var dias = await _diaRepository.FindByConditionAsync(d => d.Descripcion == dia);
+            var diaEntidad = dias.SingleOrDefault();
+
+            var horarios = await _horarioRepository.FindByConditionAsync(h => h.Descripcion == horario);
+            var horarioEntidad = horarios.SingleOrDefault();
+
+            if (dia == null || horario == null)
+                throw new InvalidOperationException("No se encontró el día u horario indicado.");
+
+            var diaHorarios = await _diaHorarioRepository.FindByConditionAsync(dh => dh.IdDia == diaEntidad.ID && dh.IdHorario == horarioEntidad.ID);
+            var diaHorario = diaHorarios.SingleOrDefault();
+
+            if (diaHorario == null)
+                throw new InvalidOperationException("No se encontró la combinación de día y horario.");
+
+            var diaHorarioMateria = await _diaHorarioMateriaRepository.FindByConditionAsync(dhm => dhm.IdMateria == materiaEntidad.ID && dhm.IdDiaHorario == diaHorario.ID);
+            var diaHorarioMateriaEntidad = diaHorarioMateria.SingleOrDefault();
+            if (diaHorarioMateria == null)
+                throw new InvalidOperationException("No se encontró la asignación de día/horario a esa materia.");
+
+            var asistencia = await _asistenciaRepository.FindByConditionAsync(a => a.IdInscripcion == inscripcion.ID && a.IdDiaHorarioMateria == diaHorarioMateriaEntidad.ID);
+            Asistencia? asistenciaExistente = asistencia.SingleOrDefault();
             if (asistenciaExistente == null)
             {
                 throw new InvalidOperationException("La asistencia que se quiere actualizar no existe.");
             }
 
-            asistenciaExistente.Estado = asistenciaActualizar.Estado;
+            asistenciaExistente.Estado = estado;
 
             _asistenciaRepository.Update(asistenciaExistente);
-            _asistenciaRepository.Save();
+            _asistenciaRepository.SaveAsync();
+
+            AsistenciaDTO asistenciaActualizadaDTO = new AsistenciaDTO()
+            {
+                ID = asistenciaExistente.ID,
+                NombreAlumno = nombrealumno,
+                Dia = dia,
+                Horario = horario,
+                Materia = materia,
+                Estado = asistenciaExistente.Estado,
+                Fecha = fecha
+            };
+            return asistenciaActualizadaDTO;
         }
         public void EliminarAsistencia(int año, int mes, int dia)
         {
