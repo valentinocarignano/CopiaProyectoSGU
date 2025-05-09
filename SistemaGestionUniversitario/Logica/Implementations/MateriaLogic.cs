@@ -250,31 +250,37 @@ namespace Negocio.Implementations
                     return null;
                 }
 
-                List<string> listaDescripcionDiasHorarios = new List<string>();
-                foreach(Materia materia in listaMaterias)
+                List<MateriaDTO> listaMateriasDTO = new List<MateriaDTO>();
+
+                foreach (Materia materia in listaMaterias)
                 {
+                    List<string> descripcionDiasHorarios = new List<string>();
+
                     foreach (DiaHorario diaHorario in materia.DiaHorario)
                     {
-                        listaDescripcionDiasHorarios.Add(await _diaHorarioLogic.ObtenerDescripcionDiaHorarioPorDiaHorario(diaHorario));
+                        string descripcion = await _diaHorarioLogic.ObtenerDescripcionDiaHorarioPorDiaHorario(diaHorario);
+                        descripcionDiasHorarios.Add(descripcion);
                     }
-                }      
 
-                List<MateriaDTO> listaMateriasDTO = listaMaterias.Select(t => new MateriaDTO
-                {
-                    ID = t.ID,
-                    Nombre = t.Nombre,
-                    Anio = t.Anio,
-                    Modalidad = t.Modalidad,
-                    NombresProfesores = t.Profesores.Select(p => p.Usuario.Nombre).ToList(),
-                    DescripcionDiasHorarios = listaDescripcionDiasHorarios
-                }).ToList();
+                    MateriaDTO materiaDTO = new MateriaDTO
+                    {
+                        ID = materia.ID,
+                        Nombre = materia.Nombre,
+                        Anio = materia.Anio,
+                        Modalidad = materia.Modalidad,
+                        NombresProfesores = materia.Profesores.Select(p => p.Usuario.Nombre).ToList(),
+                        DescripcionDiasHorarios = descripcionDiasHorarios
+                    };
+
+                    listaMateriasDTO.Add(materiaDTO);
+                }
 
                 return listaMateriasDTO;
             }
             catch (Exception ex)
             {
                 throw new Exception($"{ex}");
-            };
+            }
         }
         public async Task<MateriaDTO> ObtenerMateriaNombre(string nombre)
         {

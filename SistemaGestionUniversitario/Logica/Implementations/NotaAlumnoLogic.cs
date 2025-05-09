@@ -147,20 +147,24 @@ namespace Logica.Implementations
                     return null;
                 }
 
-                List<string> listaNombresAlumnos = new List<string>();
-                foreach (NotaAlumno nota in listaNotas)
+                List<NotaAlumnoDTO> listaNotasDTO = new List<NotaAlumnoDTO>();
+                foreach(NotaAlumno nota in listaNotas)
                 {
-                    foreach (DiaHorario diaHorario in materia.DiaHorario)
+                    List<string> listaNombresAlumnos = new List<string>();
+                    foreach (int id in nota.IdAlumno)
                     {
-                        listaDescripcionDiasHorarios.Add(await _diaHorarioLogic.ObtenerDescripcionDiaHorarioPorDiaHorario(diaHorario));
-                    }
-                }
 
-                List<NotaAlumnoDTO> listaNotasDTO = listaNotas.Select(t => new NotaAlumnoDTO
-                {
-                    ID = t.ID,
-                    AlumnoNombre = t.
-                }).ToList();
+                       listaDescripcionDiasHorarios.Add(await _alumnoRepository.FindByConditionAsync(a => a.ID == id).;
+                    }
+
+                    NotaAlumnoDTO notaDTO = new NotaAlumnoDTO()
+                    {
+                        ID = ,
+                        AlumnoNombre =
+                    }).ToList();
+
+                    listaNotasDTO.Add(notaDTO);
+                }
 
                 return listaNotasDTO;
             }

@@ -1,6 +1,6 @@
 ﻿namespace Entidades.Entities
 {
-    public class NotaAlumno :EntityBase
+    public class NotaAlumno : EntityBase
 
     {
         public int IdAlumno {  get; set; }
