@@ -1,17 +1,7 @@
 ﻿using Datos.Repositories.Contracts;
-using Datos.Repositories.Implementations;
 using Entidades.DTOs;
 using Entidades.Entities;
 using Logica.Contracts;
-using Negocio.Contracts;
-using Shared.Entities;
-using Shared.Repositories;
-using Shared.Repositories.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Logica.Implementations
 {
@@ -29,7 +19,33 @@ namespace Logica.Implementations
         }
 
         public async Task AltaNotaAlumno(int nota, int idAlumno, int idExamen)
-        {
+        {  
+            if (nota < 0 || nota > 10)
+            {
+                throw new ArgumentNullException("La nota ingresada debe tener un valor entre 0 y 10.");
+            }
+
+            Alumno? alumnoExistente = (await _alumnoRepository.FindByConditionAsync(p => p.ID == idAlumno)).FirstOrDefault();
+
+            if (alumnoExistente == null)
+            {
+                throw new ArgumentNullException("El alumno seleccionado no existe.");
+            }
+
+            Examen? examenExistente = (await _examenRepository.FindByConditionAsync(p => p.ID == idExamen)).FirstOrDefault();
+
+            if (examenExistente == null)
+            {
+                throw new ArgumentNullException("El examen seleccionado no existe.");
+            }
+
+            NotaAlumno? notaAlumnoExistente = (await _notaAlumnoRepository.FindByConditionAsync(p => p.IdAlumno == idAlumno && p.IdExamen == idExamen)).FirstOrDefault();
+
+            if (notaAlumnoExistente != null)
+            {
+                throw new ArgumentNullException("Ya se le asigno una nota al alumno ingresado en el examen seleccionado.");
+            }
+
             NotaAlumno notaAlumnoAgregar = new NotaAlumno()
             {
                 Nota = nota,
@@ -37,104 +53,66 @@ namespace Logica.Implementations
                 IdExamen = idExamen,
             };
 
-            if (notaAlumnoAgregar == null)
-            {
-                throw new ArgumentNullException("No se ha ingresado ninguna nota para un alumno.");
-            }
-
-            if (notaAlumnoAgregar.Nota < 0 || notaAlumnoAgregar.Nota > 10)
-            {
-                throw new ArgumentNullException("La nota ingresada debe tener un valor entre 0 y 10.");
-            }
-
-            Alumno? alumnoExistente = _alumnoRepository.FindByCondition(p => p.ID == notaAlumnoAgregar.IdAlumno).FirstOrDefault();
-
-            if (alumnoExistente == null)
-            {
-                throw new ArgumentNullException("El alumno seleccionado no existe.");
-            }
-
-            Examen? examenExistente = _examenRepository.FindByCondition(p => p.ID == notaAlumnoAgregar.IdExamen).FirstOrDefault();
-
-            if (examenExistente == null)
-            {
-                throw new ArgumentNullException("El examen seleccionado no existe.");
-            }
-
-            NotaAlumno? notaAlumnoExistente = _notaAlumnoRepository.FindByCondition(p => p.IdAlumno == notaAlumnoAgregar.IdAlumno && p.IdExamen == notaAlumnoAgregar.IdExamen).FirstOrDefault();
-
-            if (notaAlumnoExistente != null)
-            {
-                throw new InvalidOperationException("Ya se le asigno una nota al alumno ingresado en el examen seleccionado.");
-            }
-
-            NotaAlumno notaAlumnoNueva = new NotaAlumno();
-
-            notaAlumnoNueva.Nota = notaAlumnoAgregar.Nota;
-            notaAlumnoNueva.IdAlumno = notaAlumnoAgregar.IdAlumno;
-            notaAlumnoNueva.IdExamen = notaAlumnoAgregar.IdExamen;
-
-            _notaAlumnoRepository.Create(notaAlumnoNueva);
-            _notaAlumnoRepository.Save();
+            await _notaAlumnoRepository.AddAsync(notaAlumnoAgregar);
+            await _notaAlumnoRepository.SaveAsync();
         }
         public async Task<NotaAlumnoDTO> ActualizacionNotaAlumno(int nota, int idAlumno, int idExamen)
         {
-            NotaAlumno notaAlumnoActualizar = new NotaAlumno()
-            {
-                Nota = nota,
-                IdAlumno = idAlumno,
-                IdExamen = idExamen,
-            };
-
-            if (notaAlumnoActualizar == null)
-            {
-                throw new ArgumentNullException("No se ha ingresado ninguna nota para un alumno.");
-            }
-
-            if(notaAlumnoActualizar.Nota < 0 || notaAlumnoActualizar.Nota > 10)
+            if (nota < 0 || nota > 10)
             {
                 throw new ArgumentNullException("La nota ingresada debe tener un valor entre 0 y 10.");
             }
 
-            Alumno? alumnoExistente = _alumnoRepository.FindByCondition(p => p.ID == notaAlumnoActualizar.IdAlumno).FirstOrDefault();
+            Alumno? alumnoExistente = (await _alumnoRepository.FindByConditionAsync(p => p.ID == idAlumno)).FirstOrDefault();
 
             if (alumnoExistente == null)
             {
                 throw new ArgumentNullException("El alumno seleccionado no existe.");
             }
 
-            Examen? examenExistente = _examenRepository.FindByCondition(p => p.ID == notaAlumnoActualizar.IdExamen).FirstOrDefault();
+            Examen? examenExistente = (await _examenRepository.FindByConditionAsync(p => p.ID == idExamen)).FirstOrDefault();
 
             if (examenExistente == null)
             {
                 throw new ArgumentNullException("El examen seleccionado no existe.");
             }
 
-            NotaAlumno? notaAlumnoExistente = _notaAlumnoRepository.FindByCondition(p => p.IdAlumno == notaAlumnoActualizar.IdAlumno && p.IdExamen == notaAlumnoActualizar.IdExamen).FirstOrDefault();
+            NotaAlumno? notaAlumnoExistente = (await _notaAlumnoRepository.FindByConditionAsync(p => p.IdAlumno == idAlumno && p.IdExamen == idExamen)).FirstOrDefault();
 
             if (notaAlumnoExistente == null)
             {
-                throw new InvalidOperationException("El alumno ingresado en el examen seleccionado no tiene ninguna nota para actualizar.");
+                throw new ArgumentNullException("El alumno ingresado en el examen seleccionado no tiene ninguna nota para actualizar.");
             }
 
-            notaAlumnoExistente.Nota = notaAlumnoActualizar.Nota;
-            notaAlumnoExistente.IdAlumno = notaAlumnoActualizar.IdAlumno;
-            notaAlumnoExistente.IdExamen = notaAlumnoActualizar.IdExamen;
+            notaAlumnoExistente.Nota = nota;
+            notaAlumnoExistente.IdAlumno = idAlumno;
+            notaAlumnoExistente.IdExamen = idExamen;
 
             _notaAlumnoRepository.Update(notaAlumnoExistente);
-            _notaAlumnoRepository.Save();
+            await _notaAlumnoRepository.AddAsync(notaAlumnoExistente);
+
+            NotaAlumnoDTO notaAlumnoExistenteDTO = new NotaAlumnoDTO()
+            {
+                ID = notaAlumnoExistente.ID,
+                AlumnoNombre = $"{alumnoExistente.Usuario.Nombre} {alumnoExistente.Usuario.Apellido}",
+                ExamenMateriaNombre = examenExistente.Materia.Nombre,
+                ExamenTipo = examenExistente.Tipo,
+                Nota = notaAlumnoExistente.Nota
+            };
+
+            return notaAlumnoExistenteDTO;
         }
         public async Task BajaNotaAlumno(int idAlumno, int idExamen)
         {
-            NotaAlumno? notaAlumnoEliminar = _notaAlumnoRepository.FindByCondition(p => p.IdAlumno == idAlumno && p.IdExamen == idExamen).FirstOrDefault();
+            NotaAlumno? notaAlumnoEliminar = (await _notaAlumnoRepository.FindByConditionAsync(p => p.IdAlumno == idAlumno && p.IdExamen == idExamen)).FirstOrDefault();
 
             if (notaAlumnoEliminar == null)
             {
-                throw new InvalidOperationException("La nota que se desea eliminar no existe.");
+                throw new ArgumentException("La nota que se desea eliminar no existe.");
             }
 
-            _notaAlumnoRepository.Delete(notaAlumnoEliminar);
-            _notaAlumnoRepository.Save();
+            _notaAlumnoRepository.Remove(notaAlumnoEliminar);
+            await _notaAlumnoRepository.SaveAsync();
         }
         public async Task<List<NotaAlumnoDTO>> ObtenerNotas()
         {
@@ -148,20 +126,20 @@ namespace Logica.Implementations
                 }
 
                 List<NotaAlumnoDTO> listaNotasDTO = new List<NotaAlumnoDTO>();
-                foreach(NotaAlumno nota in listaNotas)
+                foreach (NotaAlumno nota in listaNotas)
                 {
-                    List<string> listaNombresAlumnos = new List<string>();
-                    foreach (int id in nota.IdAlumno)
-                    {
+                    Alumno? alumno = (await _alumnoRepository.FindByConditionAsync(a => a.ID == nota.IdAlumno)).FirstOrDefault();
+                    Examen? examen = (await _examenRepository.FindByConditionAsync(a => a.ID == nota.IdExamen)).FirstOrDefault();
 
-                       listaDescripcionDiasHorarios.Add(await _alumnoRepository.FindByConditionAsync(a => a.ID == id).;
-                    }
 
                     NotaAlumnoDTO notaDTO = new NotaAlumnoDTO()
                     {
-                        ID = ,
-                        AlumnoNombre =
-                    }).ToList();
+                        ID = nota.ID,
+                        AlumnoNombre = $"{alumno.Usuario.Nombre} {alumno.Usuario.Apellido}",
+                        ExamenMateriaNombre = examen.Materia.Nombre,
+                        ExamenTipo = examen.Tipo,
+                        Nota = nota.Nota
+                    };
 
                     listaNotasDTO.Add(notaDTO);
                 }
@@ -175,11 +153,81 @@ namespace Logica.Implementations
         }
         public async Task<List<NotaAlumnoDTO>> ObtenerNotasPorMateria(int idMateria)
         {
-            return await _notaAlumnoRepository.GetAll();
+            try
+            {
+                List<Examen> listaExamenes = (await _examenRepository.FindByConditionAsync(e => e.Materia.ID == idMateria)).ToList();
+
+                //HashSet<int> mejora mucho el rendimiento de busqueda en comparacion con List<int>
+                HashSet<int> idsExamenes = listaExamenes.Select(e => e.ID).ToHashSet();
+
+                List<NotaAlumno> listaNotas = (await _notaAlumnoRepository.FindAllAsync()).Where(n => idsExamenes.Contains(n.IdExamen)).ToList();
+
+                if (listaNotas == null || listaNotas.Count == 0)
+                {
+                    return new List<NotaAlumnoDTO>();
+                }
+
+                List<NotaAlumnoDTO> listaNotasDTO = new List<NotaAlumnoDTO>();
+                foreach (NotaAlumno nota in listaNotas)
+                {
+                    Alumno? alumno = (await _alumnoRepository.FindByConditionAsync(a => a.ID == nota.IdAlumno)).FirstOrDefault();
+                    Examen? examen = (await _examenRepository.FindByConditionAsync(a => a.ID == nota.IdExamen)).FirstOrDefault();
+
+                    NotaAlumnoDTO notaDTO = new NotaAlumnoDTO()
+                    {
+                        ID = nota.ID,
+                        AlumnoNombre = $"{alumno.Usuario.Nombre} {alumno.Usuario.Apellido}",
+                        ExamenMateriaNombre = examen.Materia.Nombre,
+                        ExamenTipo = examen.Tipo,
+                        Nota = nota.Nota
+                    };
+
+                    listaNotasDTO.Add(notaDTO);
+                }
+
+                return listaNotasDTO;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"{ex}");
+            };
         }
         public async Task<List<NotaAlumnoDTO>> ObtenerNotasPorAlumno(int idAlumno)
         {
-            return await _notaAlumnoRepository.GetAll();
+            try
+            {
+                List<NotaAlumno> listaNotas = (await _notaAlumnoRepository.FindByConditionAsync(n => n.IdAlumno == idAlumno)).ToList();
+
+                if (listaNotas == null)
+                {
+                    return null;
+                }
+
+                List<NotaAlumnoDTO> listaNotasDTO = new List<NotaAlumnoDTO>();
+                foreach (NotaAlumno nota in listaNotas)
+                {
+                    Alumno? alumno = (await _alumnoRepository.FindByConditionAsync(a => a.ID == nota.IdAlumno)).FirstOrDefault();
+                    Examen? examen = (await _examenRepository.FindByConditionAsync(a => a.ID == nota.IdExamen)).FirstOrDefault();
+
+
+                    NotaAlumnoDTO notaDTO = new NotaAlumnoDTO()
+                    {
+                        ID = nota.ID,
+                        AlumnoNombre = $"{alumno.Usuario.Nombre} {alumno.Usuario.Apellido}",
+                        ExamenMateriaNombre = examen.Materia.Nombre,
+                        ExamenTipo = examen.Tipo,
+                        Nota = nota.Nota
+                    };
+
+                    listaNotasDTO.Add(notaDTO);
+                }
+
+                return listaNotasDTO;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"{ex}");
+            };
         }
     }
 }
