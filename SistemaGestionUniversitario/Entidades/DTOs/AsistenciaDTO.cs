@@ -9,7 +9,7 @@ namespace Entidades.DTOs
     public class AsistenciaDTO
     {
         public int ID { get; set; }
-        public string NombreAlumno { get; set; } //idinscripcion
+        public string DniAlumno { get; set; } //idinscripcion
         public string Dia { get; set; }
         public string Horario { get; set; }
         public string Materia { get; set; }
