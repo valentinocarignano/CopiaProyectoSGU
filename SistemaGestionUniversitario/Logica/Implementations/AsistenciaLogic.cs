@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Negocio.Contracts;
-using Shared.Entities;
-using Shared.Repositories;
-using Shared.Repositories.Contracts;
+﻿using Entidades.Entities;
+using Microsoft.EntityFrameworkCore;
+using Logica.Contracts;
+using Entidades.Entities;
+using Datos.Repositories;
+using Datos.Repositories.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;

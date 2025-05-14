@@ -1,7 +1,7 @@
-﻿using Negocio.Contracts;
-using Shared.Entities;
-using Shared.Repositories;
-using Shared.Repositories.Contracts;
+﻿using Logica.Contracts;
+using Entidades.Entities;
+using Datos.Repositories;
+using Datos.Repositories.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -69,8 +69,8 @@ namespace Logica.Implementations
             notaAlumnoNueva.IdAlumno = notaAlumnoAgregar.IdAlumno;
             notaAlumnoNueva.IdExamen = notaAlumnoAgregar.IdExamen;
 
-            _notaAlumnoRepository.Create(notaAlumnoNueva);
-            _notaAlumnoRepository.Save();
+            _notaAlumnoRepository.AddAsync(notaAlumnoNueva);
+            _notaAlumnoRepository.SaveAsync();
         }
 
         public async Task<List<NotaAlumno>> ObtenerNotas()
@@ -87,8 +87,8 @@ namespace Logica.Implementations
                 throw new InvalidOperationException("La nota que se desea eliminar no existe.");
             }
 
-            _notaAlumnoRepository.Delete(notaAlumnoEliminar);
-            _notaAlumnoRepository.Save();
+            _notaAlumnoRepository.Remove(notaAlumnoEliminar);
+            _notaAlumnoRepository.SaveAsync();
         }
 
         public void ActualizacionNotaAlumno(int nota, int idAlumno, int idExamen)
@@ -136,7 +136,7 @@ namespace Logica.Implementations
             notaAlumnoExistente.IdExamen = notaAlumnoActualizar.IdExamen;
 
             _notaAlumnoRepository.Update(notaAlumnoExistente);
-            _notaAlumnoRepository.Save();
+            _notaAlumnoRepository.SaveAsync();
         }
     }
 }
