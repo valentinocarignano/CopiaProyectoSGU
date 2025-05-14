@@ -77,90 +77,68 @@ namespace Logica.Implementations
             await _asistenciaRepository.SaveAsync();
         }
 
-        public async Task<AsistenciaDTO> ActualizarAsistencia(int idasistencia, bool estado, string dia, string horario, string materia, string dnialumno, DateTime fecha)
+        public async Task<AsistenciaDTO> ActualizarAsistencia(string dnialumno, string materia, int año, int mes, int dia, bool estado)
         {
+            if (string.IsNullOrEmpty(dnialumno))
+                throw new ArgumentNullException(nameof(dnialumno));
+            if (string.IsNullOrEmpty(materia))
+                throw new ArgumentNullException(nameof(materia));
 
-            if (idasistencia == null)
-            {
-                throw new ArgumentNullException("No se ha ingresado ninguna asistencia.");
-            }
-
-            if (dia == null)
-            {
-                throw new ArgumentNullException("No se ha ingresado ningun dia");
-            }
-
-            if (horario == null)
-            {
-                throw new ArgumentNullException("No se ha ingresado ningun horario.");
-            }
-            
-            if(materia == null)
-            {
-                throw new ArgumentNullException("No se ha ingresado ninguna materia.");
-            }
-
-            var alumnos = await _alumnoRepository.FindByConditionAsync(a => (a.Usuario.DNI) == dnialumno);
-            var alumno = alumnos.SingleOrDefault();
-
+            // Buscar alumno por DNI
+            var alumno = (await _alumnoRepository.FindByConditionAsync(a => a.Usuario.DNI == dnialumno)).SingleOrDefault();
             if (alumno == null)
-                throw new InvalidOperationException("No se encontró un alumno con ese nombre.");
+                throw new InvalidOperationException("No se encontró un alumno con ese DNI.");
 
-            var materias = await _materiaRepository.FindByConditionAsync(m => m.Nombre == materia);
-            var materiaEntidad = materias.SingleOrDefault();
+            // Buscar materia por nombre
+            var materiaEntidad = (await _materiaRepository.FindByConditionAsync(m => m.Nombre == materia)).SingleOrDefault();
             if (materiaEntidad == null)
                 throw new InvalidOperationException("No se encontró la materia.");
 
-            var inscripciones = await _inscripcionRepository.FindByConditionAsync(i => i.IdAlumno == alumno.ID && i.IdMateria == materiaEntidad.ID);
-            var inscripcion = inscripciones.SingleOrDefault();
-
+            // Buscar inscripción
+            var inscripcion = (await _inscripcionRepository.FindByConditionAsync(i => i.IdAlumno == alumno.ID && i.IdMateria == materiaEntidad.ID)).SingleOrDefault();
             if (inscripcion == null)
                 throw new InvalidOperationException("El alumno no está inscripto en esa materia.");
 
-            var dias = await _diaRepository.FindByConditionAsync(d => d.Descripcion == dia);
-            var diaEntidad = dias.SingleOrDefault();
+            // Buscar asistencia por fecha exacta e inscripción
+            var asistenciaExistente = (await _asistenciaRepository.FindByConditionAsync(a => a.Fecha.Year == año && a.Fecha.Month == mes && a.Fecha.Day == dia && a.IdInscripcion == inscripcion.ID)).SingleOrDefault();
+            if (asistenciaExistente == null)
+                throw new InvalidOperationException("No se encontró la asistencia para ese día.");
 
-            var horarios = await _horarioRepository.FindByConditionAsync(h => h.Descripcion == horario);
-            var horarioEntidad = horarios.SingleOrDefault();
+            // Actualizar estado
+            asistenciaExistente.Estado = estado;
+            _asistenciaRepository.Update(asistenciaExistente);
+            await _asistenciaRepository.SaveAsync();
 
-            if (dia == null || horario == null)
-                throw new InvalidOperationException("No se encontró el día u horario indicado.");
+            // Obtener información relacionada
+            var diaHorarioMateria = (await _diaHorarioMateriaRepository.FindByConditionAsync(dhm => dhm.ID == asistenciaExistente.IdDiaHorarioMateria)).SingleOrDefault();
+            if (diaHorarioMateria == null)
+                throw new InvalidOperationException("No se encontró el registro de día/horario de la materia.");
 
-            var diaHorarios = await _diaHorarioRepository.FindByConditionAsync(dh => dh.IdDia == diaEntidad.ID && dh.IdHorario == horarioEntidad.ID);
-            var diaHorario = diaHorarios.SingleOrDefault();
-
+            var diaHorario = (await _diaHorarioRepository.FindByConditionAsync(dh => dh.ID == diaHorarioMateria.IdDiaHorario)).SingleOrDefault();
             if (diaHorario == null)
                 throw new InvalidOperationException("No se encontró la combinación de día y horario.");
 
-            var diaHorarioMateria = await _diaHorarioMateriaRepository.FindByConditionAsync(dhm => dhm.IdMateria == materiaEntidad.ID && dhm.IdDiaHorario == diaHorario.ID);
-            var diaHorarioMateriaEntidad = diaHorarioMateria.SingleOrDefault();
-            if (diaHorarioMateria == null)
-                throw new InvalidOperationException("No se encontró la asignación de día/horario a esa materia.");
+            var diaEntidad = (await _diaRepository.FindByConditionAsync(d => d.ID == diaHorario.IdDia)).SingleOrDefault();
 
-            var asistencia = await _asistenciaRepository.FindByConditionAsync(a => a.IdInscripcion == inscripcion.ID && a.IdDiaHorarioMateria == diaHorarioMateriaEntidad.ID);
-            Asistencia? asistenciaExistente = asistencia.SingleOrDefault();
-            if (asistenciaExistente == null)
-            {
-                throw new InvalidOperationException("La asistencia que se quiere actualizar no existe.");
-            }
+            var horarioEntidad = (await _horarioRepository.FindByConditionAsync(h => h.ID == diaHorario.IdHorario)).SingleOrDefault();
+            if (diaEntidad == null || horarioEntidad == null)
+                throw new InvalidOperationException("No se encontró el día u horario correspondiente.");
 
-            asistenciaExistente.Estado = estado;
-
-            _asistenciaRepository.Update(asistenciaExistente);
-            _asistenciaRepository.SaveAsync();
-
-            AsistenciaDTO asistenciaActualizadaDTO = new AsistenciaDTO()
+            // Construir DTO actualizado
+            var asistenciaDTO = new AsistenciaDTO
             {
                 ID = asistenciaExistente.ID,
                 DniAlumno = dnialumno,
-                Dia = dia,
-                Horario = horario,
                 Materia = materia,
+                Dia = diaEntidad.Descripcion,
+                Horario = horarioEntidad.Descripcion,
                 Estado = asistenciaExistente.Estado,
-                Fecha = fecha
+                Fecha = asistenciaExistente.Fecha
             };
-            return asistenciaActualizadaDTO;
+
+            return asistenciaDTO;
         }
+
         public async Task EliminarAsistencia(string dnialumno, string nombremateria, int año, int mes, int dia)
         {
             var alumnos = await _alumnoRepository.FindByConditionAsync(a => (a.Usuario.DNI) == dnialumno);
@@ -187,16 +165,46 @@ namespace Logica.Implementations
             await _asistenciaRepository.SaveAsync();
         }
 
+        //public async Task<List<AsistenciaDTO>> ObtenerAsistencias()
+        //{
+        //    try
+        //    {
+        //        List<Asistencia> listaAsistencias = (await _asistenciaRepository.FindAllAsync()).ToList();
 
-        public async Task<List<Asistencia>> ObtenerAsistencias()
-        {
-            return await _asistenciaRepository.GetAll();
-        }
+        //        if (listaAsistencias == null)
+        //        {
+        //            return null;
+        //        }
 
-        public IEnumerable<Asistencia> ObtenerAsistenciasPorFecha(DateTime fecha)
-        {
-            return _asistenciaRepository.FindByCondition(a => a.Fecha.Date == fecha.Date);
-        }
+        //        List<AsistenciaDTO> listaAsistenciasDTO = listaAsistencias.Select(t => new AsistenciaDTO
+        //        {
+        //            ID = t.ID,
+        //            DniAlumno = t.Inscripcion.Alumno.Usuario.DNI,
+        //            Materia = t.materia,
+        //            Dia = t.,
+        //            Horario = horarioEntidad.Descripcion,
+        //            Estado = asistenciaExistente.Estado,
+        //            Fecha = asistenciaExistente.Fecha
+        //        }).ToList();
+
+        //        return listaUsuariosDTO;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception($"{ex}");
+        //    }
+        //    ;
+        //}
+
+        //public async Task<List<Asistencia>> ObtenerAsistencias()
+        //{
+        //    return await _asistenciaRepository.GetAll();
+        //}
+
+        //public IEnumerable<Asistencia> ObtenerAsistenciasPorFecha(DateTime fecha)
+        //{
+        //    return _asistenciaRepository.FindByCondition(a => a.Fecha.Date == fecha.Date);
+        //}
 
     }
 }
