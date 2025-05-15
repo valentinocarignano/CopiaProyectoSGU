@@ -165,36 +165,41 @@ namespace Logica.Implementations
             await _asistenciaRepository.SaveAsync();
         }
 
-        //public async Task<List<AsistenciaDTO>> ObtenerAsistencias()
-        //{
-        //    try
-        //    {
-        //        List<Asistencia> listaAsistencias = (await _asistenciaRepository.FindAllAsync()).ToList();
+        public async Task<List<AsistenciaDTO>> ObtenerAsistenciasPorMateria(int idMateria)
+        {
+            try
+            {
+                List<Asistencia> listaAsistencia = (await _asistenciaRepository.FindByConditionAsync(a => a. == idMateria)).ToList();
 
-        //        if (listaAsistencias == null)
-        //        {
-        //            return null;
-        //        }
+                //HashSet<int> mejora mucho el rendimiento de busqueda en comparacion con List<int>
+                HashSet<int> idsExamenes = listaExamenes.Select(e => e.ID).ToHashSet();
 
-        //        List<AsistenciaDTO> listaAsistenciasDTO = listaAsistencias.Select(t => new AsistenciaDTO
-        //        {
-        //            ID = t.ID,
-        //            DniAlumno = t.Inscripcion.Alumno.Usuario.DNI,
-        //            Materia = t.materia,
-        //            Dia = t.,
-        //            Horario = horarioEntidad.Descripcion,
-        //            Estado = asistenciaExistente.Estado,
-        //            Fecha = asistenciaExistente.Fecha
-        //        }).ToList();
+                List<NotaAlumno> listaNotas = (await _notaAlumnoRepository.FindAllAsync()).Where(n => idsExamenes.Contains(n.IdExamen)).ToList();
 
-        //        return listaUsuariosDTO;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new Exception($"{ex}");
-        //    }
-        //    ;
-        //}
+                if (listaNotas == null || listaNotas.Count == 0)
+                {
+                    return new List<NotaAlumnoDTO>();
+                }
+
+                List<AsistenciaDTO> listaAsistenciasDTO = listaAsistencias.Select(t => new AsistenciaDTO
+                {
+                    ID = t.ID,
+                    DniAlumno = t.Inscripcion.Alumno.Usuario.DNI,
+                    Materia = t.materia,
+                    Dia = t.,
+                    Horario = horarioEntidad.Descripcion,
+                    Estado = asistenciaExistente.Estado,
+                    Fecha = asistenciaExistente.Fecha
+                }).ToList();
+
+                return listaUsuariosDTO;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"{ex}");
+            }
+            ;
+        }
 
         //public async Task<List<Asistencia>> ObtenerAsistencias()
         //{
