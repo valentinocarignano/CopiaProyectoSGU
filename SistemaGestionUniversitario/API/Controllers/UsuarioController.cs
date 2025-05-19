@@ -27,6 +27,20 @@ namespace API.Controllers
             return await _context.Usuario.ToListAsync();
         }
 
+        // GET: api/Usuario/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Usuario>> GetUsuarioPorId(long? id)
+        {
+            var usuario = await _context.Usuario.FindAsync(id);
+
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            return usuario;
+        }
+
         // GET: api/Usuario/DNI
         [HttpGet("GetDNI")]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetDNI()
@@ -41,9 +55,92 @@ namespace API.Controllers
             return Ok(usuariosResponse);
         }
 
+        //GET: api/Usuario
+        public async Task<IActionResult> GetUsuarios([FromQuery] string? filtroSeleccionado)
+        {
+            List<UsuarioDTO> listaUsuarios = new List<UsuarioDTO>();
+            var usuarios = await _context.Usuario.ToListAsync();
+
+            if (filtroSeleccionado == "Administrador")
+            {
+                listaUsuarios = usuarios
+                    .Where(a => a.RolUsuario.Descripcion == "Administrador")
+                    .Select(a => new UsuarioDTO
+                    {
+                        RolUsuarioDescripcion = a.RolUsuario.Descripcion,
+                        Nombre = $"{a.Nombre} {a.Apellido}",
+                        DNI = a.DNI
+                    }).ToList();
+            }
+            else if (filtroSeleccionado == "Alumno")
+            {
+                listaUsuarios = usuarios
+                    .Where(a => a.RolUsuario.Descripcion == "Alumno")
+                    .Select(a => new UsuarioDTO
+                    {
+                        RolUsuarioDescripcion = a.RolUsuario.Descripcion,
+                        Nombre = $"{a.Nombre} {a.Apellido}",
+                        DNI = a.DNI
+                    }).ToList();
+            }
+            else if (filtroSeleccionado == "Profesor")
+            {
+                listaUsuarios = usuarios
+                    .Where(a => a.RolUsuario.Descripcion == "Profesor")
+                    .Select(a => new UsuarioDTO
+                    {
+                        RolUsuarioDescripcion = a.RolUsuario.Descripcion,
+                        Nombre = $"{a.Nombre} {a.Apellido}",
+                        DNI = a.DNI
+                    }).ToList();
+            }
+            else if (filtroSeleccionado == "Z - A")
+            {
+                listaUsuarios = usuarios
+                    .Select(a => new UsuarioDTO
+                    {
+                        RolUsuarioDescripcion = a.RolUsuario.Descripcion,
+                        Nombre = $"{a.Nombre} {a.Apellido}",
+                        DNI = a.DNI
+                    }).OrderByDescending(u => u.Nombre).ToList();
+            }
+            else if (filtroSeleccionado == "A - Z")
+            {
+                listaUsuarios = usuarios
+                    .Select(a => new UsuarioDTO
+                    {
+                        RolUsuarioDescripcion = a.RolUsuario.Descripcion,
+                        Nombre = $"{a.Nombre} {a.Apellido}",
+                        DNI = a.DNI
+                    }).OrderBy(u => u.Nombre).ToList();
+            }
+            else if (!string.IsNullOrEmpty(filtroSeleccionado))
+            {
+                listaUsuarios = usuarios
+                    .Where(a => a.Nombre.Contains(filtroSeleccionado) || a.Apellido.Contains(filtroSeleccionado))
+                    .Select(a => new UsuarioDTO
+                    {
+                        RolUsuarioDescripcion = a.RolUsuario.Descripcion,
+                        Nombre = $"{a.Nombre} {a.Apellido}",
+                        DNI = a.DNI
+                    }).ToList();
+            }
+            else
+            {
+                listaUsuarios = usuarios
+                    .Select(a => new UsuarioDTO
+                    {
+                        RolUsuarioDescripcion = a.RolUsuario.Descripcion,
+                        Nombre = $"{a.Nombre} {a.Apellido}",
+                        DNI = a.DNI
+                    }).ToList();
+            }
+
+            return Ok(listaUsuarios);
+        }
         // PUT: api/Usuario/dni
         [HttpPut("{dni}")]
-        public async Task<ActionResult<Usuario>> PutUsuario(string dni, [FromBody] UsuarioDTO usuario)
+        public async Task<ActionResult<Usuario>> PutUsuario(string dni, UsuarioDTO usuario)
         {
             Usuario? usuarioEntity = _context.Usuario.FirstOrDefault(u => u.DNI == dni);
 
@@ -97,12 +194,11 @@ namespace API.Controllers
                 }
             };
 
-            return Ok(usuarioResponse); 
+            return Ok(usuarioResponse); // Devuelve el objeto como resultado
         }
-
         // POST: api/Usuario
         [HttpPost]
-        public async Task<ActionResult> PostUsuario([FromBody] UsuarioDTO usuario)
+        public async Task<ActionResult<Usuario>> PostUsuario(UsuarioDTO usuario)
         {
             // Crear la entidad Usuario a partir del DTO
             Usuario usuarioEntity = new Usuario
