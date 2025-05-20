@@ -1,8 +1,8 @@
 ﻿using Logica.Contracts;
 using Datos.Repositories.Contracts;
 using Entidades.Entities;
-using Entidades.DTOs;
 using Datos.Repositories.Implementations;
+using Entidades.DTOs.Respuestas;
 
 namespace Logica.Implementations
 {
