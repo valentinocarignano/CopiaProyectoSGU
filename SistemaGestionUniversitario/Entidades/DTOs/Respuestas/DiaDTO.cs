@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Entidades.DTOs
+namespace Entidades.DTOs.Respuestas
 {
-    public class RolUsuarioDTO
+    public class DiaDTO
     {
         public int ID { get; set; }
         public string Descripcion { get; set; }

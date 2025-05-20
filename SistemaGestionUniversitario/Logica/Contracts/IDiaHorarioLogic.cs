@@ -1,4 +1,4 @@
-﻿using Entidades.DTOs;
+﻿using Entidades.DTOs.Respuestas;
 using Entidades.Entities;
 
 namespace Logica.Contracts

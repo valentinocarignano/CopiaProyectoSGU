@@ -1,6 +1,6 @@
 ﻿using Entidades.Entities;
 
-namespace Entidades.DTOs
+namespace Entidades.DTOs.Respuestas
 {
     public class UsuarioDTO
     {

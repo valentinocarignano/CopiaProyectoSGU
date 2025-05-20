@@ -1,5 +1,5 @@
 ﻿using Datos.Repositories.Contracts;
-using Entidades.DTOs;
+using Entidades.DTOs.Respuestas;
 using Entidades.Entities;
 using Logica.Contracts;
 
@@ -21,7 +21,7 @@ namespace Logica.Implementations
             _diaHorarioLogic = diaHorarioLogic;
         }
 
-        public async Task AltaExamen(DateTime fecha, string nombreMateria, string descripcionDiaHorario, string tipoExamen)
+        public async Task AltaExamen(string nombreMateria, string descripcionDiaHorario, string tipoExamen)
         {
             Materia? materiaExistente = (await _materiaRepository.FindByConditionAsync(m => m.Nombre == nombreMateria)).FirstOrDefault();
             DiaHorario? diaHorarioExistente = await _diaHorarioLogic.ObtenerDiaHorarioPorDescripcionUsoInterno(descripcionDiaHorario);

@@ -4,8 +4,8 @@ using Entidades.Entities;
 using Datos.Contexts;
 using System.Data.Entity;
 using Datos.Repositories.Implementations;
-using Entidades.DTOs;
 using Datos.Repositories.Contracts;
+using Entidades.DTOs.Respuestas;
 
 namespace API.Controllers
 {

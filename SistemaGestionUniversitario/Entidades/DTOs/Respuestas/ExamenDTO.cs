@@ -1,4 +1,4 @@
-﻿namespace Entidades.DTOs
+﻿namespace Entidades.DTOs.Respuestas
 {
     public class ExamenDTO
     {
