@@ -2,7 +2,7 @@
 using Datos.Repositories.Contracts;
 using Datos.Contexts;
 using System.Linq.Expressions;
-using System.Data.Entity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Datos.Repositories.Implementations
 {

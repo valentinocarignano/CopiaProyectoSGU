@@ -58,7 +58,7 @@ namespace API.Controllers
                     usuario.RolUsuarioDescripcion, 
                     usuario.FechaContratoIngreso);
 
-                return Ok(usuario);
+                return Ok("Usuario creado correctamente.");
             }
 
             // PUT: api/Usuario/dni
