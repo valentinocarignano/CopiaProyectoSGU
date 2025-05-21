@@ -62,7 +62,7 @@ namespace Logica.Implementations
             await _asistenciaRepository.SaveAsync();
         }
 
-        public async Task<AsistenciaDTO> ActualizarAsistencia(string dnialumno, string materia, int año, int mes, int dia, bool estado)
+        public async Task<AsistenciaDTO> ActualizarAsistencia(string dnialumno, string materia, int ano, int mes, int dia, bool estado)
         {
             if (string.IsNullOrEmpty(dnialumno))
                 throw new ArgumentNullException(nameof(dnialumno));
@@ -85,7 +85,7 @@ namespace Logica.Implementations
                 throw new InvalidOperationException("El alumno no está inscripto en esa materia.");
 
             // Buscar asistencia por fecha exacta e inscripción
-            var asistenciaExistente = (await _asistenciaRepository.FindByConditionAsync(a => a.Fecha.Year == año && a.Fecha.Month == mes && a.Fecha.Day == dia && a.IdInscripcion == inscripcion.ID)).SingleOrDefault();
+            var asistenciaExistente = (await _asistenciaRepository.FindByConditionAsync(a => a.Fecha.Year == ano && a.Fecha.Month == mes && a.Fecha.Day == dia && a.IdInscripcion == inscripcion.ID)).SingleOrDefault();
             if (asistenciaExistente == null)
                 throw new InvalidOperationException("No se encontró la asistencia para ese día.");
 
