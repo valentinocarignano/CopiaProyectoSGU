@@ -19,7 +19,7 @@ namespace API.Controllers
             _asistenciaLogic = asistenciaLogic;
         }
 
-        [HttpGet("nombre-materia/{nombre-materia}")]
+        [HttpGet("nombreMateria/{nombreMateria}")]
         public async Task<IActionResult> ObtenerAsistenciasPorMateria(string nombreMateria)
         {
             List<AsistenciaDTO> asistenciaDTO = await _asistenciaLogic.ObtenerAsistenciasPorMateria(nombreMateria);
@@ -35,7 +35,7 @@ namespace API.Controllers
             return Ok();
         }
 
-        [HttpPut("dni-alumno{dni-alumno}/materia{materia}/año{ano}/mes{mes}/dia{dia}")]
+        [HttpPut("dniAlumno/{dniAlumno}/materia/{materia}/año{ano}/mes{mes}/dia{dia}")]
         public async Task<IActionResult> Modificar(string dniAlumno, string materia, int ano, int mes, int dia, [FromBody] ModificarAsistenciaDTO modificarAsistenciaDTO)
         {
             AsistenciaDTO asistenciaDTO = await _asistenciaLogic.ActualizarAsistencia(dniAlumno,materia,ano,mes, dia, modificarAsistenciaDTO.Estado);
@@ -48,7 +48,7 @@ namespace API.Controllers
             return Ok(asistenciaDTO);
         }
 
-        [HttpDelete("dni-alumno/{dni-alumno}/materia/{materia}/año{ano}/mes{mes}/dia{dia}")]
+        [HttpDelete("dniAlumno/{dniAlumno}/materia/{materia}/año{ano}/mes{mes}/dia{dia}")]
         public async Task<IActionResult> Eliminar(string dnialumno, string materia, int ano, int mes, int dia)
         {
             try
