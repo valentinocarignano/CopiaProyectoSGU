@@ -141,11 +141,10 @@ namespace Logica.Implementations
             _usuarioRepository.Remove(usuarioEliminar);
             await _usuarioRepository.SaveAsync();
         }
-        public async Task<UsuarioDTO> ActualizacionUsuario(string documento, string nombre, string apellido, string caracteristicaTelefono, string numeroTelefono, string localidad, string direccion, string rolUsuario)
+        public async Task<UsuarioDTO> ActualizacionUsuario(string documento, string nombre, string apellido, string caracteristicaTelefono, string numeroTelefono, string localidad, string direccion)
         {
             List<string>? camposErroneos = new List<string>();
 
-            RolUsuario? rolExistente = (await _rolUsuarioRepository.FindByConditionAsync(r => r.Descripcion == rolUsuario)).FirstOrDefault();
             Usuario? usuarioExistente = (await _usuarioRepository.FindByConditionAsync(r => r.DNI == documento)).FirstOrDefault();
 
             if (string.IsNullOrEmpty(documento) || !ValidacionesCampos.DocumentoEsValido(documento) || usuarioExistente == null)
@@ -183,11 +182,6 @@ namespace Logica.Implementations
                 camposErroneos.Add("Dirección");
             }
 
-            if (rolExistente == null)
-            {
-                camposErroneos.Add("Rol Usuario");
-            }
-
             if (camposErroneos.Count > 0)
             {
                 throw new ArgumentException("Se encontraron errores en los siguientes campos: " + string.Join(", ", camposErroneos));
@@ -199,7 +193,6 @@ namespace Logica.Implementations
             usuarioExistente.NumeroTelefono = numeroTelefono;
             usuarioExistente.Localidad = localidad;
             usuarioExistente.Direccion = direccion;
-            usuarioExistente.RolUsuario = rolExistente;
 
             _usuarioRepository.Update(usuarioExistente);
 
