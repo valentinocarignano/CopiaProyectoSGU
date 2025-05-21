@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace Entidades.DTOs.Crear
 {
-    public class CrearUsuarioDTo
+    public class CrearUsuarioDTO
     {
-        public int ID { get; set; }
         public string DNI { get; set; }
         public string Password { get; set; } 
         public string Nombre { get; set; }

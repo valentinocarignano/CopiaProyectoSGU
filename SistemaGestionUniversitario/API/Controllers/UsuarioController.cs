@@ -29,19 +29,22 @@ namespace API.Controllers
             public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
             {
                 List<UsuarioDTO> usuarios = await _usuarioLogic.ObtenerUsuarios();
+
                 return Ok(usuarios);
             }
 
             // GET: api/Usuario/DNI
-            [HttpGet("GetDNI")]
-            public async Task<ActionResult<IEnumerable<Usuario>>> GetDNI(string dni)
+            [HttpGet("{dni}")]
+            public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarioPorDNI(string dni)
             {
                 UsuarioDTO usuario = await _usuarioLogic.ObtenerUsuarioPorDNI(dni);
+                
                 return Ok(usuario);
             }
+
             // POST: api/Usuario
             [HttpPost]
-            public async Task<ActionResult> PostUsuario([FromBody] CrearUsuarioDTo usuario)
+            public async Task<ActionResult> PostUsuario([FromBody] CrearUsuarioDTO usuario)
             {
                 await _usuarioLogic.AltaUsuario(
                     usuario.DNI, 
@@ -57,31 +60,34 @@ namespace API.Controllers
 
                 return Ok(usuario);
             }
+
             // PUT: api/Usuario/dni
             [HttpPut("{dni}")]
             public async Task<ActionResult<Usuario>> PutUsuario(string dni, [FromBody] ModificarUsuarioDTO usuario)
             {
                 UsuarioDTO usuarioDTO = await _usuarioLogic.ActualizacionUsuario(
-                    usuario.DNI, 
+                    dni, 
                     usuario.Nombre, 
                     usuario.Apellido, 
                     usuario.CaracteristicaTelefono, 
                     usuario.NumeroTelefono, 
                     usuario.Localidad, 
-                    usuario.Direccion, 
-                    usuario.RolUsuarioDescripcion);
+                    usuario.Direccion);
 
                 if (usuarioDTO == null)
                 {
                     return NotFound();
                 }
+
                 return Ok(usuarioDTO);
             }
+
             //PUT: api/Usuario/actualizarPassword/dni
             [HttpPut("actualizarPassword/{dni}")]
             public async Task<ActionResult<Usuario>> PutUsuarioPassword(string dni, [FromBody] ModificarUsuarioPasswordDTO passwordDto)
             {
                 await _usuarioLogic.ActualizacionPassword(dni, passwordDto.ActualPassword, passwordDto.NuevaPassword);
+                
                 return Ok("Contraseña actualizada correctamente.");
             }
 
@@ -92,6 +98,7 @@ namespace API.Controllers
                 try
                 {
                     await _usuarioLogic.BajaUsuario(dni);
+                    
                     return Ok($"Usuario con DNI {dni} eliminado correctamente.");
                 }
                 catch
