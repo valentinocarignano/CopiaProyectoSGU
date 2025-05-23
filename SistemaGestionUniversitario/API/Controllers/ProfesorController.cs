@@ -31,28 +31,6 @@ namespace API.Controllers
             return Ok(profesorDTO);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CrearProfesor([FromBody] CrearProfesorDTO crearProfesorDTO)
-        {
-            await _profesorLogic.AltaProfesor(crearProfesorDTO.usuario, crearProfesorDTO.FechaInicioContrato);
-
-            return Ok(crearProfesorDTO);
-        }
-
-        [HttpPut]
-        public async Task<IActionResult> ModificarProfesor([FromBody] ModificarProfesorDTO modificarProfesorDTO)
-        {
-            await _profesorLogic.ActualizacionProfesor(modificarProfesorDTO.usuario);
-
-            return Ok(modificarProfesorDTO);
-        }
-        [HttpDelete]
-        [Route("{dni}")]
-        public async Task<IActionResult> EliminarProfesor(string dni)
-        {
-            await _profesorLogic.BajaProfesor(dni);
-
-            return Ok();
-        }
+     
     }
 }
