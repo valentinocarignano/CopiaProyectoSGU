@@ -7,7 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\Eliminar\" />
+    <Compile Remove="DTOs\Eliminar\**" />
+    <EmbeddedResource Remove="DTOs\Eliminar\**" />
+    <None Remove="DTOs\Eliminar\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Entities\" />
   </ItemGroup>
 

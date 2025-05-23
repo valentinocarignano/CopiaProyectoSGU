@@ -1,7 +1,10 @@
 using Datos.Contexts;
 using Datos.Repositories.Contracts;
 using Datos.Repositories.Implementations;
+using Logica.Contracts;
+using Logica.Implementations;
 using Microsoft.EntityFrameworkCore;
+using Negocio.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,7 +34,20 @@ builder.Services.AddTransient<IUsuarioRepository, UsuarioRepository>();
 #endregion
 
 #region Inyeccion de Dependencias de Logica
-//TODO: INYECTAR DEPENDENCIAS
+builder.Services.AddTransient<IAlumnoLogic, AlumnoLogic>();
+builder.Services.AddTransient<IAsistenciaLogic, AsistenciaLogic>();
+builder.Services.AddTransient<IDiaHorarioMateriaLogic, DiaHorarioMateriaLogic>();
+builder.Services.AddTransient<IDiaHorarioLogic, DiaHorarioLogic>();
+builder.Services.AddTransient<IDiaLogic, DiaLogic>();
+builder.Services.AddTransient<IExamenLogic, ExamenLogic>();
+builder.Services.AddTransient<IHorarioLogic, HorarioLogic>();
+builder.Services.AddTransient<IInscripcionLogic, InscripcionLogic>();
+builder.Services.AddTransient<IMateriaLogic, MateriaLogic>();
+builder.Services.AddTransient<INotaAlumnoLogic, NotaAlumnoLogic>();
+builder.Services.AddTransient<IProfesorMateriaLogic, ProfesorMateriaLogic>();
+builder.Services.AddTransient<IProfesorLogic, ProfesorLogic>();
+builder.Services.AddTransient<IRolUsuarioLogic, RolUsuarioLogic>();
+builder.Services.AddTransient<IUsuarioLogic, UsuarioLogic>();
 #endregion
 
 var app = builder.Build();
