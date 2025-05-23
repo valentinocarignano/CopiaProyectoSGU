@@ -21,7 +21,6 @@ builder.Services.AddTransient<IDiaHorarioRepository, DiaHorarioRepository>();
 builder.Services.AddTransient<IDiaRepository, DiaRepository>();
 builder.Services.AddTransient<IExamenRepository, ExamenRepository>();
 builder.Services.AddTransient<IHorarioRepository, HorarioRepository>();
-builder.Services.AddTransient<IImagenRepository, ImagenRepository>();
 builder.Services.AddTransient<IInscripcionRepository, InscripcionRepository>();
 builder.Services.AddTransient<IMateriaRepository, MateriaRepository>();
 builder.Services.AddTransient<INotaAlumnoRepository, NotaAlumnoRepository>();
@@ -50,7 +49,7 @@ using (var scope = app.Services.CreateScope())
 
     var context = services.GetRequiredService<ApplicationDbContext>();
     context.Database.EnsureCreated();
-    DbInitializer.Initialize(context);
+    await DbInitializer.Initialize(context);
 }
 
 app.UseHttpsRedirection();

@@ -31,7 +31,7 @@ namespace Datos.Contexts
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasAnnotation("Relational:Collation", "en_US.UTF-8");
+            modelBuilder.UseCollation("Latin1_General_CI_AS");
 
             modelBuilder.Entity<Alumno>(entity =>
             {
