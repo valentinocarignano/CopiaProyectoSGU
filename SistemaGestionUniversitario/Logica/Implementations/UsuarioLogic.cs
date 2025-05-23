@@ -25,7 +25,9 @@ namespace Logica.Implementations
             List<string>?camposErroneos = new List<string>();
             
             RolUsuario? rolExistente = (await _rolUsuarioRepository.FindByConditionAsync(r => r.Descripcion == rolUsuario)).FirstOrDefault();
-
+            
+            //VALIDACIONES
+            #region  
             if (!ValidacionesCampos.DocumentoEsValido(dni) || (await _usuarioRepository.FindByConditionAsync(p => p.DNI == dni)).Count() != 0)
             {
                 camposErroneos.Add("DNI");
@@ -63,7 +65,7 @@ namespace Logica.Implementations
 
             if (password == null)
             {
-                camposErroneos.Add("Rol Usuario");
+                camposErroneos.Add("Password");
             }
             else
             {
@@ -74,6 +76,7 @@ namespace Logica.Implementations
             {
                 throw new ArgumentException("Los siguientes campos son inválidos: ", string.Join(", ", camposErroneos));
             }
+            #endregion 
 
             Usuario usuarioNuevo = new Usuario()
             {
@@ -90,7 +93,7 @@ namespace Logica.Implementations
 
             await _usuarioRepository.AddAsync(usuarioNuevo);
 
-            if (usuarioNuevo.RolUsuario.ID == 2)
+            if (usuarioNuevo.RolUsuario.ID == 3)
             {
                 try
                 {
@@ -101,7 +104,7 @@ namespace Logica.Implementations
                     throw new ArgumentException("La fecha de contrato es obligatoria para el rol de profesor.");
                 }
             }
-            else if (usuarioNuevo.RolUsuario.ID == 3)
+            else if (usuarioNuevo.RolUsuario.ID == 2)
             {
                 try
                 {
@@ -129,11 +132,11 @@ namespace Logica.Implementations
                 throw new ArgumentException("Usuario no encontrado.");
             }
             
-            if (usuarioEliminar.RolUsuario.ID == 2)
+            if (usuarioEliminar.RolUsuario.ID == 3)
             {
                 await _profesorLogic.BajaProfesor(documento);
             }
-            else if (usuarioEliminar.RolUsuario.ID == 3)
+            else if (usuarioEliminar.RolUsuario.ID == 2)
             {
                 await _alumnoLogic.BajaAlumno(documento);
             }
