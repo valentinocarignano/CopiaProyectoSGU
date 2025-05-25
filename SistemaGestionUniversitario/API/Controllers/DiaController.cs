@@ -22,7 +22,7 @@ namespace API.Controllers
             return Ok(diaDTO);
         }
 
-        [HttpGet("id/{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> ObtenerDiaPorID(int id)
         {
             DiaDTO diaDTO = await _diaLogic.ObtenerDiaId(id);

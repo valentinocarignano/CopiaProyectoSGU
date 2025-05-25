@@ -1,6 +1,4 @@
-﻿using Entidades.DTOs.Crear;
-using Entidades.DTOs.Modificar;
-using Entidades.DTOs.Respuestas;
+﻿using Entidades.DTOs.Respuestas;
 using Logica.Contracts;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,7 +28,5 @@ namespace API.Controllers
 
             return Ok(profesorDTO);
         }
-
-     
     }
 }

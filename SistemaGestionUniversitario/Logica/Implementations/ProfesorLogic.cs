@@ -16,9 +16,7 @@ namespace Logica.Implementations
         }
 
         public async Task AltaProfesor(Usuario usuario, DateTime? fechaInicioContrato)
-        {
-            
-
+        {      
             if (fechaInicioContrato == null)
             {
                 throw new ArgumentNullException("Se debe asignar una fecha de inicio de contrato.");

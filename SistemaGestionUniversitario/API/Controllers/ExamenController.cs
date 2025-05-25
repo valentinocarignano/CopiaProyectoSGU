@@ -25,7 +25,7 @@ namespace API.Controllers
             return Ok(examenDTO);
         }
 
-        [HttpGet("nombre-materia/{nombre-materia}")]
+        [HttpGet("{nombreMateria}")]
         public async Task<IActionResult> ObtenerExamenesPorMateria(string nombreMateria)
         {
             List<ExamenDTO> examenDTO = await _examenLogic.ObtenerExamenesPorMateria(nombreMateria);
@@ -41,12 +41,12 @@ namespace API.Controllers
             return Ok();
         }
 
-        [HttpPut("id-materia/{id-materia}/id-diahorario/{id-diahorario}")]
-        public async Task<IActionResult> Modificar(int idMateria, int idDiaHorario, [FromBody] ModificarExamenDTO modificarExamenDTO)
+        [HttpPut("{nombreMateria}/{descripcionDiaHorario}")]
+        public async Task<IActionResult> Modificar(string nombreMateria, string descripcionDiaHorario, [FromBody] ModificarExamenDTO modificarExamenDTO)
         {
             ExamenDTO examenDTO = await _examenLogic.ActualizacionExamen(
-                idMateria,
-                idDiaHorario,
+                nombreMateria,
+                descripcionDiaHorario,
                 modificarExamenDTO.IDNuevoDiaHorario);
 
             if (examenDTO == null)
@@ -57,14 +57,14 @@ namespace API.Controllers
             return Ok(examenDTO);
         }
 
-        [HttpDelete("id-materia/{id-materia}/id-diahorario/{id-diahorario}")]
-        public async Task<IActionResult> EliminarPorID(int idMateria, int idDiaHorario)
+        [HttpDelete("{nombreMateria}/{descripcionDiaHorario}")]
+        public async Task<IActionResult> EliminarPorID(string nombreMateria, string descripcionDiaHorario)
         {
             try
             {
-                await _examenLogic.BajaExamen(idMateria, idDiaHorario);
+                await _examenLogic.BajaExamen(nombreMateria, descripcionDiaHorario);
 
-                return Ok();
+                return Ok("El examen se elimino correctamente.");
             }
             catch
             {

@@ -93,7 +93,7 @@ namespace Logica.Implementations
 
             await _usuarioRepository.AddAsync(usuarioNuevo);
 
-            if (usuarioNuevo.RolUsuario.ID == 3)
+            if (usuarioNuevo.RolUsuario.ID == 2)
             {
                 try
                 {
@@ -104,7 +104,7 @@ namespace Logica.Implementations
                     throw new ArgumentException("La fecha de contrato es obligatoria para el rol de profesor.");
                 }
             }
-            else if (usuarioNuevo.RolUsuario.ID == 2)
+            else if (usuarioNuevo.RolUsuario.ID == 3)
             {
                 try
                 {
@@ -132,11 +132,11 @@ namespace Logica.Implementations
                 throw new ArgumentException("Usuario no encontrado.");
             }
             
-            if (usuarioEliminar.RolUsuario.ID == 3)
+            if (usuarioEliminar.RolUsuario.ID == 2)
             {
                 await _profesorLogic.BajaProfesor(documento);
             }
-            else if (usuarioEliminar.RolUsuario.ID == 2)
+            else if (usuarioEliminar.RolUsuario.ID == 3)
             {
                 await _alumnoLogic.BajaAlumno(documento);
             }
@@ -150,6 +150,7 @@ namespace Logica.Implementations
 
             Usuario? usuarioExistente = (await _usuarioRepository.FindByConditionAsync(r => r.DNI == documento)).FirstOrDefault();
 
+            #region VALIDACIONES
             if (string.IsNullOrEmpty(documento) || !ValidacionesCampos.DocumentoEsValido(documento) || usuarioExistente == null)
             {
                 throw new ArgumentException("El documento ingresado no es válido o el usuario con dicho documento no existe.");
@@ -189,6 +190,7 @@ namespace Logica.Implementations
             {
                 throw new ArgumentException("Se encontraron errores en los siguientes campos: " + string.Join(", ", camposErroneos));
             }
+            #endregion
 
             usuarioExistente.Nombre = nombre;
             usuarioExistente.Apellido = apellido;
@@ -196,8 +198,6 @@ namespace Logica.Implementations
             usuarioExistente.NumeroTelefono = numeroTelefono;
             usuarioExistente.Localidad = localidad;
             usuarioExistente.Direccion = direccion;
-
-            _usuarioRepository.Update(usuarioExistente);
 
             if (usuarioExistente.RolUsuario.ID == 2)
             {

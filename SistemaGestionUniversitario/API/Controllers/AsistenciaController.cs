@@ -2,8 +2,6 @@
 using Entidades.DTOs.Modificar;
 using Entidades.DTOs.Respuestas;
 using Logica.Contracts;
-using Logica.Implementations;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -62,7 +60,5 @@ namespace API.Controllers
                 return BadRequest();
             }
         }
-        
-
     }
 }

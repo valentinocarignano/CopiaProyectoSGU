@@ -1,5 +1,4 @@
 ﻿using Logica.Contracts;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -9,10 +8,12 @@ namespace API.Controllers
     public class DiaHorarioController : ControllerBase
     {
         private readonly IDiaHorarioLogic _diaHorarioLogic;
+        
         public DiaHorarioController(IDiaHorarioLogic diaHorarioLogic)
         {
             _diaHorarioLogic = diaHorarioLogic;
         }
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {

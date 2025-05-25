@@ -2,7 +2,6 @@
 using Entidades.DTOs.Crear;
 using Entidades.DTOs.Modificar;
 using Entidades.DTOs.Respuestas;
-using Entidades.Entities;
 using Logica.Contracts;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,7 +16,6 @@ namespace API.Controllers
             private readonly IUsuarioLogic _usuarioLogic;
             private readonly IRolUsuarioLogic _rolUsuarioLogic;
 
-
             public UsuarioController(IUsuarioLogic usuarioLogic, IRolUsuarioLogic rolUsuarioLogic)
             {
                 _usuarioLogic = usuarioLogic;
@@ -26,7 +24,7 @@ namespace API.Controllers
 
             // GET: api/Usuarios
             [HttpGet]
-            public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
+            public async Task<IActionResult> GetUsuarios()
             {
                 List<UsuarioDTO> usuarios = await _usuarioLogic.ObtenerUsuarios();
 
@@ -35,7 +33,7 @@ namespace API.Controllers
 
             // GET: api/Usuario/DNI
             [HttpGet("{dni}")]
-            public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarioPorDNI(string dni)
+            public async Task<IActionResult> GetUsuarioPorDNI(string dni)
             {
                 UsuarioDTO usuario = await _usuarioLogic.ObtenerUsuarioPorDNI(dni);
                 
@@ -44,7 +42,7 @@ namespace API.Controllers
 
             // POST: api/Usuario
             [HttpPost]
-            public async Task<ActionResult> PostUsuario([FromBody] CrearUsuarioDTO usuario)
+            public async Task<IActionResult> PostUsuario([FromBody] CrearUsuarioDTO usuario)
             {
                 await _usuarioLogic.AltaUsuario(
                     usuario.DNI, 
@@ -63,7 +61,7 @@ namespace API.Controllers
 
             // PUT: api/Usuario/dni
             [HttpPut("{dni}")]
-            public async Task<ActionResult<Usuario>> PutUsuario(string dni, [FromBody] ModificarUsuarioDTO usuario)
+            public async Task<IActionResult> PutUsuario(string dni, [FromBody] ModificarUsuarioDTO usuario)
             {
                 UsuarioDTO usuarioDTO = await _usuarioLogic.ActualizacionUsuario(
                     dni, 
@@ -84,7 +82,7 @@ namespace API.Controllers
 
             //PUT: api/Usuario/actualizarPassword/dni
             [HttpPut("actualizarPassword/{dni}")]
-            public async Task<ActionResult<Usuario>> PutUsuarioPassword(string dni, [FromBody] ModificarUsuarioPasswordDTO passwordDto)
+            public async Task<IActionResult> PutUsuarioPassword(string dni, [FromBody] ModificarUsuarioPasswordDTO passwordDto)
             {
                 await _usuarioLogic.ActualizacionPassword(dni, passwordDto.ActualPassword, passwordDto.NuevaPassword);
                 
@@ -101,12 +99,11 @@ namespace API.Controllers
                     
                     return Ok($"Usuario con DNI {dni} eliminado correctamente.");
                 }
-                catch
+                catch(Exception ex)
                 {
-                    return BadRequest();
+                    return BadRequest(ex);
                 }
             }
         }
-
     }
 }

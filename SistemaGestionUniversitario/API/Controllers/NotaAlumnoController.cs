@@ -2,7 +2,6 @@
 using Entidades.DTOs.Modificar;
 using Entidades.DTOs.Respuestas;
 using Logica.Contracts;
-using Logica.Implementations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -26,18 +25,18 @@ namespace API.Controllers
             return Ok(notaAlumnoDTO);
         }
 
-        [HttpGet("id-materia/{id-materia}")]
-        public async Task<IActionResult> ObtenerNotasPorMateria(int idMateria)
+        [HttpGet("nombreMateria/{nombreMateria}")]
+        public async Task<IActionResult> ObtenerNotasPorMateria(string nombreMateria)
         {
-            List<NotaAlumnoDTO> notaAlumnoDTO = await _notaAlumnoLogic.ObtenerNotasPorMateria(idMateria);
+            List<NotaAlumnoDTO> notaAlumnoDTO = await _notaAlumnoLogic.ObtenerNotasPorMateria(nombreMateria);
 
             return Ok(notaAlumnoDTO);
         }
 
-        [HttpGet("id-alumno/{id-alumno}")]
-        public async Task<IActionResult> ObtenerNotasPorAlumno(int idAlumno)
+        [HttpGet("dniAlumno/{dniAlumno}")]
+        public async Task<IActionResult> ObtenerNotasPorAlumno(string dniAlumno)
         {
-            List<NotaAlumnoDTO> notaAlumnoDTO = await _notaAlumnoLogic.ObtenerNotasPorAlumno(idAlumno);
+            List<NotaAlumnoDTO> notaAlumnoDTO = await _notaAlumnoLogic.ObtenerNotasPorAlumno(dniAlumno);
 
             return Ok(notaAlumnoDTO);
         }
@@ -45,18 +44,18 @@ namespace API.Controllers
         [HttpPost]
         public async Task<IActionResult> CrearNotaAlumno([FromBody] CrearNotaAlumnoDTO crearNotaAlumnoDTO)
         {
-            await _notaAlumnoLogic.AltaNotaAlumno(crearNotaAlumnoDTO.Nota, crearNotaAlumnoDTO.IDAlumno, crearNotaAlumnoDTO.IDExamen);
+            await _notaAlumnoLogic.AltaNotaAlumno(crearNotaAlumnoDTO.Nota, crearNotaAlumnoDTO.DNIAlumno, crearNotaAlumnoDTO.IDExamen);
 
             return Ok();
         }
 
-        [HttpPut("id-alumno/{id-alumno}/id-examen/{id-examen}")]
-        public async Task<IActionResult> ModificarNotaAlumno(int idAlumno, int idExamen, [FromBody] ModificarNotaAlumnoDTO modificarNotaAlumnoDTO)
+        [HttpPut("{dniAlumno}/{idExamen}")]
+        public async Task<IActionResult> ModificarNotaAlumno(string dniAlumno, int idExamen, [FromBody] ModificarNotaAlumnoDTO modificarNotaAlumnoDTO)
         {
             NotaAlumnoDTO notaAlumnoDTO = await _notaAlumnoLogic.ActualizacionNotaAlumno(
-                idAlumno,
-                idExamen,
-                modificarNotaAlumnoDTO.Nota);
+                modificarNotaAlumnoDTO.Nota,
+                dniAlumno,
+                idExamen);
 
             if (notaAlumnoDTO == null)
             {
@@ -66,12 +65,12 @@ namespace API.Controllers
             return Ok(notaAlumnoDTO);
         }
 
-        [HttpDelete("id-alumno/{id-alumno}/id-examen/{id-examen}")]
-        public async Task<IActionResult> EliminarNotaAlumno(int idAlumno, int idExamen)
+        [HttpDelete("{dniAlumno}/{idExamen}")]
+        public async Task<IActionResult> EliminarNotaAlumno(string dniAlumno, int idExamen)
         {
             try
             {
-                await _notaAlumnoLogic.BajaNotaAlumno(idAlumno, idExamen);
+                await _notaAlumnoLogic.BajaNotaAlumno(dniAlumno, idExamen);
 
                 return Ok();
             }

@@ -58,9 +58,15 @@ namespace Logica.Implementations
             await _examenRepository.AddAsync(examenNuevo);
             await _examenRepository.SaveAsync();
         }
-        public async Task<ExamenDTO> ActualizacionExamen(int idMateria, int idDiaHorario, int idNuevoDiaHorario)
+        public async Task<ExamenDTO> ActualizacionExamen(string nombreMateria, string descripcionDiaHorario, int idNuevoDiaHorario)
         {
-            Examen? examenExistente = (await _examenRepository.FindByConditionAsync(p => p.Materia.ID == idMateria && p.DiaHorario.ID == idDiaHorario)).FirstOrDefault();
+            DiaHorario? diaHorario = await _diaHorarioLogic.ObtenerDiaHorarioPorDescripcionUsoInterno(descripcionDiaHorario);
+            if (diaHorario == null)
+            {
+                throw new ArgumentNullException("La materia no tiene un examen para el dia y horario ingresado o el dia y horario son incorrectos.");
+            }
+
+            Examen? examenExistente = (await _examenRepository.FindByConditionAsync(p => p.Materia.Nombre == nombreMateria && p.DiaHorario.ID == diaHorario.ID)).FirstOrDefault();
 
             if (examenExistente == null)
             {
@@ -88,9 +94,15 @@ namespace Logica.Implementations
 
             return examenExistenteDTO;
         }
-        public async Task BajaExamen(int idMateria, int idDiaHorario)
+        public async Task BajaExamen(string nombreMateria, string descripcionDiaHorario)
         {
-            Examen? examenEliminar = (await _examenRepository.FindByConditionAsync(p => p.Materia.ID == idMateria && p.DiaHorario.ID == idDiaHorario)).FirstOrDefault();
+            DiaHorario? diaHorario = await _diaHorarioLogic.ObtenerDiaHorarioPorDescripcionUsoInterno(descripcionDiaHorario);
+            if (diaHorario == null)
+            {
+                throw new ArgumentNullException("La materia no tiene un examen para el dia y horario ingresado o el dia y horario son incorrectos.");
+            }
+
+            Examen? examenEliminar = (await _examenRepository.FindByConditionAsync(p => p.Materia.Nombre == nombreMateria && p.DiaHorario.ID == diaHorario.ID)).FirstOrDefault();
 
             if (examenEliminar == null)
             {

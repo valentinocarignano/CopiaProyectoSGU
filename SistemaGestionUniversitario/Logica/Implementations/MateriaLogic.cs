@@ -131,12 +131,12 @@ namespace Negocio.Implementations
             _materiaRepository.Remove(materiaEliminar);
             await _materiaRepository.SaveAsync();
         }
-        public async Task<MateriaDTO> ActualizacionMateria(int id, string nombre, List<int> listaProfesoresID, List<int> listaDiasHorariosID, string modalidad, string anio)
+        public async Task<MateriaDTO> ActualizacionMateria(string nombre, List<int> listaProfesoresID, List<int> listaDiasHorariosID)
         {
             Materia? materiaExistente = (await _materiaRepository.FindByConditionAsync(m => m.Nombre.ToLower() == nombre.ToLower())).FirstOrDefault();
-            if (materiaExistente != null && materiaExistente.ID != id)
+            if (materiaExistente == null)
             {
-                throw new ArgumentException("Ya existe una materia con el nombre ingresado.");
+                throw new ArgumentException("No se encontró una materia con el nombre ingresado.");
             }
 
             List<string> camposErroneos = new List<string>();
@@ -144,17 +144,7 @@ namespace Negocio.Implementations
             if (!ValidacionesCampos.TextoEsValido(nombre))
             {
                 camposErroneos.Add("nombre");
-            }
-
-            if (!Int32.TryParse(anio, out int anioParse) || anioParse < 1 || anioParse > 3)
-            {
-                camposErroneos.Add("Año");
-            }
-
-            if (!ValidacionesCampos.ModalidadMateriaEsValida(modalidad))
-            {
-                camposErroneos.Add("modalidad");
-            }
+            }       
 
             if (listaProfesoresID.Count == 0)
             {
@@ -176,10 +166,10 @@ namespace Negocio.Implementations
             List<DiaHorario> listaDiasHorarios = new List<DiaHorario>();
             foreach (int diaHorarioID in listaDiasHorariosID)
             {
-                bool existeSolapamiento = listaMaterias.Any(m => m.Anio == anioParse && m.DiaHorario.Any(d => d.ID == diaHorarioID));
+                bool existeSolapamiento = listaMaterias.Any(m => m.Anio == materiaExistente.Anio && m.DiaHorario.Any(d => d.ID == diaHorarioID));
                 if(existeSolapamiento)
                 {
-                    throw new ArgumentException($"Ya existe una materia para el año {anioParse} en el horario seleccionado.");
+                    throw new ArgumentException($"Ya existe una materia para el año {materiaExistente.Anio} en el horario seleccionado.");
                 }
 
                 DiaHorario? diaHorario = (await _diaHorarioRepository.FindByConditionAsync(dh => dh.ID == diaHorarioID)).FirstOrDefault();
@@ -233,7 +223,7 @@ namespace Negocio.Implementations
                 Nombre = materiaExistente.Nombre,
                 Modalidad = materiaExistente.Modalidad,
                 Anio = materiaExistente.Anio,
-                NombresProfesores = materiaExistente.Profesores.Select(p => p.Usuario.Nombre).ToList(),
+                NombresProfesores = materiaExistente.Profesores.Select(p => $"{p.Usuario.Nombre} {p.Usuario.Apellido}").ToList(),
                 DescripcionDiasHorarios = listaDescripcionDiasHorarios
             };
 
@@ -268,7 +258,7 @@ namespace Negocio.Implementations
                         Nombre = materia.Nombre,
                         Anio = materia.Anio,
                         Modalidad = materia.Modalidad,
-                        NombresProfesores = materia.Profesores.Select(p => p.Usuario.Nombre).ToList(),
+                        NombresProfesores = materia.Profesores.Select(p => $"{p.Usuario.Nombre} {p.Usuario.Apellido}").ToList(),
                         DescripcionDiasHorarios = descripcionDiasHorarios
                     };
 
@@ -303,7 +293,7 @@ namespace Negocio.Implementations
                 Nombre = materia.Nombre,
                 Anio = materia.Anio,
                 Modalidad = materia.Modalidad,
-                NombresProfesores = materia.Profesores.Select(p => p.Usuario.Nombre).ToList(),
+                NombresProfesores = materia.Profesores.Select(p => $"{p.Usuario.Nombre} {p.Usuario.Apellido}").ToList(),
                 DescripcionDiasHorarios = listaDescripcionDiasHorarios
             };
 

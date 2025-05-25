@@ -9,6 +9,7 @@ namespace API.Controllers
     public class HorarioController : ControllerBase
     {
         private readonly IHorarioLogic _horarioLogic;
+        
         public HorarioController(IHorarioLogic horarioLogic)
         {
             _horarioLogic = horarioLogic;
