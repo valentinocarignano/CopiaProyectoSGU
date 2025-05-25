@@ -46,7 +46,7 @@ namespace API.Controllers
             return Ok(asistenciaDTO);
         }
 
-        [HttpDelete("{dniAlumno}/{materia}/{anio}/{mes}/{dia}")]
+        [HttpDelete("{dnialumno}/{materia}/{anio}/{mes}/{dia}")]
         public async Task<IActionResult> Eliminar(string dnialumno, string materia, int anio, int mes, int dia)
         {
             try
@@ -55,9 +55,9 @@ namespace API.Controllers
 
                 return Ok();
             }
-            catch
+            catch(Exception ex) 
             {
-                return BadRequest();
+                return BadRequest(ex);
             }
         }
     }

@@ -2,6 +2,7 @@
 using Datos.Repositories.Contracts;
 using Entidades.Entities;
 using Entidades.DTOs.Respuestas;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Logica.Implementations
 {
@@ -119,28 +120,24 @@ namespace Logica.Implementations
 
             return asistenciaDTO;
         }
-        public async Task EliminarAsistencia(string dnialumno, string nombremateria, int año, int mes, int dia)
+        public async Task EliminarAsistencia(string dnialumno, string nombremateria, int ano, int mes, int dia)
         {
-            var alumnos = await _alumnoRepository.FindByConditionAsync(a => (a.Usuario.DNI) == dnialumno);
-            var alumno = alumnos.SingleOrDefault();
+            var alumno = (await _alumnoRepository.FindByConditionAsync(a => a.Usuario.DNI == dnialumno)).SingleOrDefault();
             if (alumno == null)
-                throw new InvalidOperationException("No se encontró un alumno con ese nombre.");
+                throw new InvalidOperationException("No se encontró un alumno con ese DNI.");
 
-            var materias = await _materiaRepository.FindByConditionAsync(m => m.Nombre == nombremateria);
-            var materiaEntidad = materias.SingleOrDefault();
+            var materiaEntidad = (await _materiaRepository.FindByConditionAsync(m => m.Nombre == nombremateria)).SingleOrDefault();
             if (materiaEntidad == null)
                 throw new InvalidOperationException("No se encontró la materia.");
 
-            var inscripciones = await _inscripcionRepository.FindByConditionAsync(i => i.IdAlumno == alumno.ID && i.IdMateria == materiaEntidad.ID);
-            var inscripcion = inscripciones.SingleOrDefault();
-
+            var inscripcion = (await _inscripcionRepository.FindByConditionAsync(i => i.IdAlumno == alumno.ID && i.IdMateria == materiaEntidad.ID)).SingleOrDefault();
             if (inscripcion == null)
                 throw new InvalidOperationException("El alumno no está inscripto en esa materia.");
 
-            var asistencias = await _asistenciaRepository.FindByConditionAsync(a => a.Fecha.Year == año && a.Fecha.Month == mes && a.Fecha.Day == dia && a.IdInscripcion == inscripcion.ID);
-            var asistencia = asistencias.SingleOrDefault();
+            var asistencia = (await _asistenciaRepository.FindByConditionAsync(a => a.Fecha.Year == ano && a.Fecha.Month == mes && a.Fecha.Day == dia && a.IdInscripcion == inscripcion.ID)).SingleOrDefault();
             if (asistencia == null)
-                throw new InvalidOperationException("No se encontró la asistencia para ese día.");
+                
+            throw new InvalidOperationException("No se encontró la asistencia para ese día.");
             _asistenciaRepository.Remove(asistencia);
             await _asistenciaRepository.SaveAsync();
         }
