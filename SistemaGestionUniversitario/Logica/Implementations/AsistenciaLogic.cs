@@ -1,7 +1,6 @@
 ﻿using Logica.Contracts;
 using Datos.Repositories.Contracts;
 using Entidades.Entities;
-using Datos.Repositories.Implementations;
 using Entidades.DTOs.Respuestas;
 
 namespace Logica.Implementations
@@ -17,7 +16,6 @@ namespace Logica.Implementations
         IHorarioRepository _horarioRepository;
         IDiaHorarioMateriaRepository _diaHorarioMateriaRepository;
 
-
         public AsistenciaLogic(IAsistenciaRepository asistenciaRepository, IAlumnoRepository alumnoRepository, IMateriaRepository materiaRepository, IInscripcionRepository inscripcionRepository, IDiaHorarioRepository diaHorarioRepository, IDiaRepository diaRepository, IHorarioRepository horarioRepository, IDiaHorarioMateriaRepository diaHorarioMateriaRepository)
         {
             _asistenciaRepository = asistenciaRepository;
@@ -28,7 +26,6 @@ namespace Logica.Implementations
             _diaRepository = diaRepository;
             _horarioRepository = horarioRepository;
             _diaHorarioMateriaRepository = diaHorarioMateriaRepository;
-            
         }
 
         public async Task AltaAsistencia(int idinscripcion, int iddiahorariomateria, bool estado, DateTime fecha)
@@ -61,7 +58,6 @@ namespace Logica.Implementations
             await _asistenciaRepository.AddAsync(asistenciaNueva);
             await _asistenciaRepository.SaveAsync();
         }
-
         public async Task<AsistenciaDTO> ActualizarAsistencia(string dnialumno, string materia, int ano, int mes, int dia, bool estado)
         {
             if (string.IsNullOrEmpty(dnialumno))
@@ -123,7 +119,6 @@ namespace Logica.Implementations
 
             return asistenciaDTO;
         }
-
         public async Task EliminarAsistencia(string dnialumno, string nombremateria, int año, int mes, int dia)
         {
             var alumnos = await _alumnoRepository.FindByConditionAsync(a => (a.Usuario.DNI) == dnialumno);
@@ -149,7 +144,6 @@ namespace Logica.Implementations
             _asistenciaRepository.Remove(asistencia);
             await _asistenciaRepository.SaveAsync();
         }
-
         public async Task<List<AsistenciaDTO>> ObtenerAsistenciasPorMateria(string nombreMateria)
         {
             // 1. Buscar la materia
@@ -210,8 +204,5 @@ namespace Logica.Implementations
 
             return resultado;
         }
-
-
     }
 }
-
