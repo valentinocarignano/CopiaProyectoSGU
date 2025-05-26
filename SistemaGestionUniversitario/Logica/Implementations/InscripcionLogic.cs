@@ -1,5 +1,4 @@
 ﻿using Datos.Repositories.Contracts;
-using Datos.Repositories.Implementations;
 using Entidades.DTOs.Respuestas;
 using Entidades.Entities;
 using Logica.Contracts;
@@ -9,25 +8,32 @@ namespace Logica.Implementations
     public class InscripcionLogic : IInscripcionLogic
     {
         private IInscripcionRepository _inscripcionRepository;
+        private IMateriaRepository _materiaRepository;
+        private IAlumnoRepository _alumnoRepository;
 
-        public InscripcionLogic(IInscripcionRepository inscripcionRepository)
+        public InscripcionLogic(IInscripcionRepository inscripcionRepository, IMateriaRepository materiaRepository, IAlumnoRepository alumnoRepository)
         {
             _inscripcionRepository = inscripcionRepository;
+            _materiaRepository = materiaRepository;
+            _alumnoRepository = alumnoRepository;
         }
 
-        public async Task AltaInscripcion(string IdAlumno, string IdMateria)
+        public async Task AltaInscripcion(string dniAlumno, string nombreMateria)
         {
-            if (!Int32.TryParse(IdAlumno, out int IdAlumnoParse))
+            Alumno? alumnoExistente = (await _alumnoRepository.FindByConditionAsync(p => p.Usuario.DNI == dniAlumno)).FirstOrDefault();
+
+            if (alumnoExistente == null)
             {
-                throw new ArgumentNullException("La inscripcion debe estar vinculada a un alumno o el ID no es valido.");
+                throw new ArgumentNullException("La inscripcion debe estar vinculada a un alumno con DNI valido.");
             }
 
-            if (!Int32.TryParse(IdMateria, out int IdMateriaParse))
+            Materia? materiaExistente = (await _materiaRepository.FindByConditionAsync(m => m.Nombre == nombreMateria)).FirstOrDefault();
+            if (materiaExistente == null)
             {
-                throw new ArgumentNullException("La inscripcion debe estar vinculada a una materia o el ID no es valido.");
+                throw new ArgumentNullException("La inscripcion debe estar vinculada a una materia con nombre valido.");
             }
 
-            Inscripcion? inscripcionExistente = (await _inscripcionRepository.FindByConditionAsync(p => p.IdMateria == IdMateriaParse && p.IdAlumno == IdAlumnoParse)).FirstOrDefault();
+            Inscripcion? inscripcionExistente = (await _inscripcionRepository.FindByConditionAsync(p => p.IdMateria == materiaExistente.ID && p.IdAlumno == alumnoExistente.ID)).FirstOrDefault();
 
             if (inscripcionExistente != null)
             {
@@ -36,33 +42,36 @@ namespace Logica.Implementations
 
             Inscripcion inscripcionNueva = new Inscripcion()
             {
-                IdAlumno = IdAlumnoParse,
-                IdMateria = IdMateriaParse
+                IdAlumno = alumnoExistente.ID,
+                IdMateria = materiaExistente.ID
             };
 
             await _inscripcionRepository.AddAsync(inscripcionNueva);
             await _inscripcionRepository.SaveAsync();
         }
-        public async Task BajaInscripcion(string IdMateria, string IdAlumno)
+        public async Task BajaInscripcion(string dniAlumno, string nombreMateria)
         {
-            if (!Int32.TryParse(IdAlumno, out int IdAlumnoParse))
+            Alumno? alumnoExistente = (await _alumnoRepository.FindByConditionAsync(p => p.Usuario.DNI == dniAlumno)).FirstOrDefault();
+
+            if (alumnoExistente == null)
             {
-                throw new ArgumentNullException("La inscripcion debe estar vinculada a un alumno o el ID no es valido.");
+                throw new ArgumentNullException("La inscripcion debe estar vinculada a un alumno con DNI valido.");
             }
 
-            if (!Int32.TryParse(IdMateria, out int IdMateriaParse))
+            Materia? materiaExistente = (await _materiaRepository.FindByConditionAsync(m => m.Nombre == nombreMateria)).FirstOrDefault();
+            if (materiaExistente == null)
             {
-                throw new ArgumentNullException("La inscripcion debe estar vinculada a una materia o el ID no es valido.");
+                throw new ArgumentNullException("La inscripcion debe estar vinculada a una materia con nombre valido.");
             }
 
-            Inscripcion? inscripcionEliminar = (await _inscripcionRepository.FindByConditionAsync(p => p.IdMateria == IdMateriaParse && p.IdAlumno == IdAlumnoParse)).FirstOrDefault();
+            Inscripcion? inscripcionExistente = (await _inscripcionRepository.FindByConditionAsync(p => p.IdMateria == materiaExistente.ID && p.IdAlumno == alumnoExistente.ID)).FirstOrDefault();
 
-            if (inscripcionEliminar == null)
+            if (inscripcionExistente == null)
             {
                 throw new InvalidOperationException("La inscripcion que se desea dar de baja no existe.");
             }
 
-            _inscripcionRepository.Remove(inscripcionEliminar);
+            _inscripcionRepository.Remove(inscripcionExistente);
             await _inscripcionRepository.SaveAsync();
         }
         public async Task<List<InscripcionDTO>> ObtenerInscripciones()

@@ -8,7 +8,7 @@ namespace Entidades.DTOs.Crear
 {
     public class CrearInscripcionDTO
     {
-        public string IdAlumno { get; set; }
-        public string IdMateria { get; set; }
+        public string DNIAlumno { get; set; }
+        public string NombreMateria { get; set; }
     }
 }

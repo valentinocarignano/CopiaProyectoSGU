@@ -2,7 +2,6 @@
 using Datos.Repositories.Contracts;
 using Entidades.Entities;
 using Entidades.DTOs.Respuestas;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Logica.Implementations
 {
