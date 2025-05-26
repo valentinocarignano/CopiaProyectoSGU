@@ -33,10 +33,10 @@ namespace API.Controllers
             return Ok();
         }
 
-        [HttpPut("{dniAlumno}/{materia}/{anio}/{mes}/{dia}")]
-        public async Task<IActionResult> Modificar(string dniAlumno, string materia, int anio, int mes, int dia, [FromBody] ModificarAsistenciaDTO modificarAsistenciaDTO)
+        [HttpPut("{dniAlumno}/{nombreMateria}")]
+        public async Task<IActionResult> Modificar(string dniAlumno, string nombreMateria, [FromBody] ModificarAsistenciaDTO modificarAsistenciaDTO)
         {
-            AsistenciaDTO asistenciaDTO = await _asistenciaLogic.ActualizarAsistencia(dniAlumno,materia, anio, mes, dia, modificarAsistenciaDTO.Estado);
+            AsistenciaDTO asistenciaDTO = await _asistenciaLogic.ActualizarAsistencia(dniAlumno, nombreMateria, modificarAsistenciaDTO.Fecha, modificarAsistenciaDTO.Estado);
 
             if (asistenciaDTO == null)
             {
@@ -46,16 +46,16 @@ namespace API.Controllers
             return Ok(asistenciaDTO);
         }
 
-        [HttpDelete("{dnialumno}/{materia}/{anio}/{mes}/{dia}")]
-        public async Task<IActionResult> Eliminar(string dnialumno, string materia, int anio, int mes, int dia)
+        [HttpDelete("{dniAlumno}/{nombreMateria}/{fecha}")]
+        public async Task<IActionResult> Eliminar(string dniAlumno, string nombreMateria, DateTime fecha)
         {
             try
             {
-                await _asistenciaLogic.EliminarAsistencia(dnialumno, materia, anio, mes, dia);
+                await _asistenciaLogic.EliminarAsistencia(dniAlumno, nombreMateria, fecha);
 
                 return Ok();
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 return BadRequest(ex);
             }

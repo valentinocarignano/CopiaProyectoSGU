@@ -1,10 +1,6 @@
 ﻿using Logica.Contracts;
-using Entidades.DTOs.Crear;
-using Entidades.DTOs.Modificar;
 using Entidades.DTOs.Respuestas;
 using Microsoft.AspNetCore.Mvc;
-
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace API.Controllers
 {

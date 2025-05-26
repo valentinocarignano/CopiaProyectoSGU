@@ -1,6 +1,4 @@
-﻿using Entidades.Entities;
-
-namespace Entidades.DTOs.Respuestas
+﻿namespace Entidades.DTOs.Respuestas
 {
     public class UsuarioDTO
     {

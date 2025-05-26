@@ -1,7 +1,6 @@
 ﻿using Entidades.DTOs.Respuestas;
 using Logica.Contracts;
 using Microsoft.AspNetCore.Mvc;
-using Entidades.Entities;
 
 namespace API.Controllers
 {
