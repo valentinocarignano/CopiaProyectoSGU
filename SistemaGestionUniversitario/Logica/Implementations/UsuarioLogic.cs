@@ -1,5 +1,5 @@
 ﻿using Datos.Repositories.Contracts;
-using Entidades.DTOs;
+using Entidades.DTOs.Respuestas;
 using Entidades.Entities;
 using Logica.Contracts;
 
@@ -25,7 +25,9 @@ namespace Logica.Implementations
             List<string>?camposErroneos = new List<string>();
             
             RolUsuario? rolExistente = (await _rolUsuarioRepository.FindByConditionAsync(r => r.Descripcion == rolUsuario)).FirstOrDefault();
-
+            
+            //VALIDACIONES
+            #region  
             if (!ValidacionesCampos.DocumentoEsValido(dni) || (await _usuarioRepository.FindByConditionAsync(p => p.DNI == dni)).Count() != 0)
             {
                 camposErroneos.Add("DNI");
@@ -63,7 +65,7 @@ namespace Logica.Implementations
 
             if (password == null)
             {
-                camposErroneos.Add("Rol Usuario");
+                camposErroneos.Add("Password");
             }
             else
             {
@@ -74,6 +76,7 @@ namespace Logica.Implementations
             {
                 throw new ArgumentException("Los siguientes campos son inválidos: ", string.Join(", ", camposErroneos));
             }
+            #endregion 
 
             Usuario usuarioNuevo = new Usuario()
             {
@@ -141,13 +144,13 @@ namespace Logica.Implementations
             _usuarioRepository.Remove(usuarioEliminar);
             await _usuarioRepository.SaveAsync();
         }
-        public async Task<UsuarioDTO> ActualizacionUsuario(string documento, string nombre, string apellido, string caracteristicaTelefono, string numeroTelefono, string localidad, string direccion, string rolUsuario)
+        public async Task<UsuarioDTO> ActualizacionUsuario(string documento, string nombre, string apellido, string caracteristicaTelefono, string numeroTelefono, string localidad, string direccion)
         {
             List<string>? camposErroneos = new List<string>();
 
-            RolUsuario? rolExistente = (await _rolUsuarioRepository.FindByConditionAsync(r => r.Descripcion == rolUsuario)).FirstOrDefault();
             Usuario? usuarioExistente = (await _usuarioRepository.FindByConditionAsync(r => r.DNI == documento)).FirstOrDefault();
 
+            #region VALIDACIONES
             if (string.IsNullOrEmpty(documento) || !ValidacionesCampos.DocumentoEsValido(documento) || usuarioExistente == null)
             {
                 throw new ArgumentException("El documento ingresado no es válido o el usuario con dicho documento no existe.");
@@ -183,15 +186,11 @@ namespace Logica.Implementations
                 camposErroneos.Add("Dirección");
             }
 
-            if (rolExistente == null)
-            {
-                camposErroneos.Add("Rol Usuario");
-            }
-
             if (camposErroneos.Count > 0)
             {
                 throw new ArgumentException("Se encontraron errores en los siguientes campos: " + string.Join(", ", camposErroneos));
             }
+            #endregion
 
             usuarioExistente.Nombre = nombre;
             usuarioExistente.Apellido = apellido;
@@ -199,9 +198,6 @@ namespace Logica.Implementations
             usuarioExistente.NumeroTelefono = numeroTelefono;
             usuarioExistente.Localidad = localidad;
             usuarioExistente.Direccion = direccion;
-            usuarioExistente.RolUsuario = rolExistente;
-
-            _usuarioRepository.Update(usuarioExistente);
 
             if (usuarioExistente.RolUsuario.ID == 2)
             {
@@ -264,6 +260,7 @@ namespace Logica.Implementations
                     ID = t.ID,
                     Nombre = t.Nombre,
                     Apellido = t.Apellido,
+                    DNI = t.DNI,
                     CaracteristicaTelefono = t.CaracteristicaTelefono,
                     NumeroTelefono = t.NumeroTelefono,
                     Localidad = t.Localidad,
@@ -297,6 +294,7 @@ namespace Logica.Implementations
                 ID = usuario.ID,
                 Nombre = usuario.Nombre,
                 Apellido = usuario.Apellido,
+                DNI = usuario.DNI,
                 CaracteristicaTelefono = usuario.CaracteristicaTelefono,
                 NumeroTelefono = usuario.NumeroTelefono,
                 Localidad = usuario.Localidad,

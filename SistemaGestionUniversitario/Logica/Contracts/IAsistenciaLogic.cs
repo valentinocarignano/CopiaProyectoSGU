@@ -1,13 +1,12 @@
-﻿using Entidades.Entities;
+﻿using Entidades.DTOs.Respuestas;
 
 namespace Logica.Contracts
 {
     public interface IAsistenciaLogic
     {
-        void AltaAsistencia(Asistencia asistenciaAgregar);
-        void ActualizarAsistencia(Asistencia asistenciaActualizar, int diaHorarioMateria);
-        void EliminarAsistencia(int año, int mes, int dia);
-        Task<List<Asistencia>> ObtenerAsistencias();
-        IEnumerable<Asistencia> ObtenerAsistenciasPorFecha(DateTime fecha);
+        Task AltaAsistencia(int idinscripcion, int iddiahorariomateria, bool estado, DateTime fecha);
+        Task<AsistenciaDTO> ActualizarAsistencia(string dniAlumno, string nombreMateria, DateTime fecha, bool estado);
+        Task EliminarAsistencia(string dniAlumno, string nombreMateria, DateTime fecha);
+        Task<List<AsistenciaDTO>> ObtenerAsistenciasPorMateria(string nombreMateria);
     }
 }

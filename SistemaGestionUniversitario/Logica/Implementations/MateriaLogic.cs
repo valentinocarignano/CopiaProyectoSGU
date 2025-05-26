@@ -1,5 +1,5 @@
 ﻿using Datos.Repositories.Contracts;
-using Entidades.DTOs;
+using Entidades.DTOs.Respuestas;
 using Entidades.Entities;
 using Logica;
 using Logica.Contracts;
@@ -11,12 +11,14 @@ namespace Negocio.Implementations
         IMateriaRepository _materiaRepository;
         IProfesorRepository _profesorRepository;
         IDiaHorarioRepository _diaHorarioRepository;
+        IDiaHorarioLogic _diaHorarioLogic;
 
-        public MateriaLogic(IMateriaRepository materiaRepository, IProfesorRepository profesorRepository, IDiaHorarioRepository diaHorarioRepository)
+        public MateriaLogic(IMateriaRepository materiaRepository, IProfesorRepository profesorRepository, IDiaHorarioRepository diaHorarioRepository, IDiaHorarioLogic diaHorarioLogic)
         {
             _materiaRepository = materiaRepository;
             _profesorRepository = profesorRepository;
             _diaHorarioRepository = diaHorarioRepository;
+            _diaHorarioLogic = diaHorarioLogic;
         }
         
         public async Task AltaMateria(string nombre, List<int> listaProfesoresID, List<int> listaDiasHorariosID, string modalidad, string anio)
@@ -129,12 +131,12 @@ namespace Negocio.Implementations
             _materiaRepository.Remove(materiaEliminar);
             await _materiaRepository.SaveAsync();
         }
-        public async Task<MateriaDTO> ActualizacionMateria(int id, string nombre, List<int> listaProfesoresID, List<int> listaDiasHorariosID, string modalidad, string anio)
+        public async Task<MateriaDTO> ActualizacionMateria(string nombre, List<int> listaProfesoresID, List<int> listaDiasHorariosID)
         {
             Materia? materiaExistente = (await _materiaRepository.FindByConditionAsync(m => m.Nombre.ToLower() == nombre.ToLower())).FirstOrDefault();
-            if (materiaExistente != null && materiaExistente.ID != id)
+            if (materiaExistente == null)
             {
-                throw new ArgumentException("Ya existe una materia con el nombre ingresado.");
+                throw new ArgumentException("No se encontró una materia con el nombre ingresado.");
             }
 
             List<string> camposErroneos = new List<string>();
@@ -142,17 +144,7 @@ namespace Negocio.Implementations
             if (!ValidacionesCampos.TextoEsValido(nombre))
             {
                 camposErroneos.Add("nombre");
-            }
-
-            if (!Int32.TryParse(anio, out int anioParse) || anioParse < 1 || anioParse > 3)
-            {
-                camposErroneos.Add("Año");
-            }
-
-            if (!ValidacionesCampos.ModalidadMateriaEsValida(modalidad))
-            {
-                camposErroneos.Add("modalidad");
-            }
+            }       
 
             if (listaProfesoresID.Count == 0)
             {
@@ -174,10 +166,10 @@ namespace Negocio.Implementations
             List<DiaHorario> listaDiasHorarios = new List<DiaHorario>();
             foreach (int diaHorarioID in listaDiasHorariosID)
             {
-                bool existeSolapamiento = listaMaterias.Any(m => m.Anio == anioParse && m.DiaHorario.Any(d => d.ID == diaHorarioID));
+                bool existeSolapamiento = listaMaterias.Any(m => m.Anio == materiaExistente.Anio && m.DiaHorario.Any(d => d.ID == diaHorarioID));
                 if(existeSolapamiento)
                 {
-                    throw new ArgumentException($"Ya existe una materia para el año {anioParse} en el horario seleccionado.");
+                    throw new ArgumentException($"Ya existe una materia para el año {materiaExistente.Anio} en el horario seleccionado.");
                 }
 
                 DiaHorario? diaHorario = (await _diaHorarioRepository.FindByConditionAsync(dh => dh.ID == diaHorarioID)).FirstOrDefault();
@@ -218,14 +210,21 @@ namespace Negocio.Implementations
             _materiaRepository.Update(materiaExistente);
             await _materiaRepository.SaveAsync();
 
+            List<string> listaDescripcionDiasHorarios = new List<string>();
+            foreach(DiaHorario diaHorario in materiaExistente.DiaHorario)
+            {
+                listaDescripcionDiasHorarios.Add(await _diaHorarioLogic.ObtenerDescripcionDiaHorarioPorDiaHorario(diaHorario));
+
+            }
+
             MateriaDTO materiaExistenteDTO = new MateriaDTO
             {
                 ID = materiaExistente.ID,
                 Nombre = materiaExistente.Nombre,
                 Modalidad = materiaExistente.Modalidad,
                 Anio = materiaExistente.Anio,
-                NombresProfesores = materiaExistente.Profesores.Select(p => p.Usuario.Nombre).ToList(),
-                DescripcionDiasHorarios = materiaExistente.DiaHorario.Select(dh => dh.GetDescripcionDiaHorario()).ToList(),
+                NombresProfesores = materiaExistente.Profesores.Select(p => $"{p.Usuario.Nombre} {p.Usuario.Apellido}").ToList(),
+                DescripcionDiasHorarios = listaDescripcionDiasHorarios
             };
 
             return materiaExistenteDTO;
@@ -241,22 +240,37 @@ namespace Negocio.Implementations
                     return null;
                 }
 
-                List<MateriaDTO> listaMateriasDTO = listaMaterias.Select(t => new MateriaDTO
+                List<MateriaDTO> listaMateriasDTO = new List<MateriaDTO>();
+
+                foreach (Materia materia in listaMaterias)
                 {
-                    ID = t.ID,
-                    Nombre = t.Nombre,
-                    Anio = t.Anio,
-                    Modalidad = t.Modalidad,
-                    NombresProfesores = t.Profesores.Select(p => p.Usuario.Nombre).ToList(),
-                    DescripcionDiasHorarios = t.DiaHorario.Select(dh => dh.GetDescripcionDiaHorario()).ToList(),
-                }).ToList();
+                    List<string> descripcionDiasHorarios = new List<string>();
+
+                    foreach (DiaHorario diaHorario in materia.DiaHorario)
+                    {
+                        string descripcion = await _diaHorarioLogic.ObtenerDescripcionDiaHorarioPorDiaHorario(diaHorario);
+                        descripcionDiasHorarios.Add(descripcion);
+                    }
+
+                    MateriaDTO materiaDTO = new MateriaDTO
+                    {
+                        ID = materia.ID,
+                        Nombre = materia.Nombre,
+                        Anio = materia.Anio,
+                        Modalidad = materia.Modalidad,
+                        NombresProfesores = materia.Profesores.Select(p => $"{p.Usuario.Nombre} {p.Usuario.Apellido}").ToList(),
+                        DescripcionDiasHorarios = descripcionDiasHorarios
+                    };
+
+                    listaMateriasDTO.Add(materiaDTO);
+                }
 
                 return listaMateriasDTO;
             }
             catch (Exception ex)
             {
                 throw new Exception($"{ex}");
-            };
+            }
         }
         public async Task<MateriaDTO> ObtenerMateriaNombre(string nombre)
         {
@@ -267,14 +281,20 @@ namespace Negocio.Implementations
                 return null;
             }
 
+            List<string> listaDescripcionDiasHorarios = new List<string>();
+            foreach (DiaHorario diaHorario in materia.DiaHorario)
+            {
+                listaDescripcionDiasHorarios.Add(await _diaHorarioLogic.ObtenerDescripcionDiaHorarioPorDiaHorario(diaHorario));
+            }
+
             MateriaDTO materiaDTO = new MateriaDTO()
             {
                 ID = materia.ID,
                 Nombre = materia.Nombre,
                 Anio = materia.Anio,
                 Modalidad = materia.Modalidad,
-                NombresProfesores = materia.Profesores.Select(p => p.Usuario.Nombre).ToList(),
-                DescripcionDiasHorarios = materia.DiaHorario.Select(dh => dh.GetDescripcionDiaHorario()).ToList(),
+                NombresProfesores = materia.Profesores.Select(p => $"{p.Usuario.Nombre} {p.Usuario.Apellido}").ToList(),
+                DescripcionDiasHorarios = listaDescripcionDiasHorarios
             };
 
             return materiaDTO;

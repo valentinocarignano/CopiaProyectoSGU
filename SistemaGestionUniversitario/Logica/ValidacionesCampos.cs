@@ -71,5 +71,14 @@ namespace Logica
 
             return true;
         }
+        public static bool TipoExamenEsValido(string texto)
+        {
+            if (texto != "Parcial" && texto != "Final")
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 }

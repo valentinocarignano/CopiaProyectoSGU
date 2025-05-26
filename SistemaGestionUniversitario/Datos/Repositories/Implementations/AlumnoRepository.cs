@@ -1,6 +1,8 @@
 ﻿using Entidades.Entities;
 using Datos.Repositories.Contracts;
 using Datos.Contexts;
+using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Datos.Repositories.Implementations
 {
@@ -8,6 +10,25 @@ namespace Datos.Repositories.Implementations
     {
         public AlumnoRepository(ApplicationDbContext context) : base(context)
         {
+        }
+
+        public override async Task<IEnumerable<Alumno>> FindAllAsync()
+        {
+            return await _context.Alumno
+                .Include(u => u.Usuario)
+                .Include(u => u.Materias)
+                .Include(u => u.Examenes)
+                .ToListAsync();
+        }
+
+        public override async Task<IEnumerable<Alumno>> FindByConditionAsync(Expression<Func<Alumno, bool>> expression)
+        {
+            return await _context.Alumno
+                .Include(u => u.Usuario)
+                .Include(u => u.Materias)
+                .Include(u => u.Examenes)
+                .Where(expression)
+                .ToListAsync();
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Datos.Repositories.Contracts;
-using Datos.Repositories.Implementations;
-using Entidades.DTOs;
+using Entidades.DTOs.Respuestas;
 using Entidades.Entities;
 using Logica.Contracts;
 
@@ -16,9 +15,7 @@ namespace Logica.Implementations
         }
 
         public async Task AltaProfesor(Usuario usuario, DateTime? fechaInicioContrato)
-        {
-            
-
+        {      
             if (fechaInicioContrato == null)
             {
                 throw new ArgumentNullException("Se debe asignar una fecha de inicio de contrato.");

@@ -1,12 +1,14 @@
-﻿using Entidades.Entities;
+﻿using Entidades.DTOs.Respuestas;
 
 namespace Logica.Contracts
 {
     public interface INotaAlumnoLogic
     {
-        void AltaNotaAlumno(int nota, int idAlumno, int idExamen);
-        Task<List<NotaAlumno>> ObtenerNotas();
-        void BajaNotaAlumno(int idAlumno, int idExamen);
-        void ActualizacionNotaAlumno(int nota, int idAlumno, int idExamen);
+        Task AltaNotaAlumno(int nota, string dniAlumno, int idExamen);
+        Task BajaNotaAlumno(string dniAlumno, int idExamen);
+        Task<NotaAlumnoDTO> ActualizacionNotaAlumno(int nota, string dniAlumno, int idExamen);
+        Task<List<NotaAlumnoDTO>> ObtenerNotas();
+        Task<List<NotaAlumnoDTO>> ObtenerNotasPorMateria(string nombreMateria);
+        Task<List<NotaAlumnoDTO>> ObtenerNotasPorAlumno(string dniAlumno);
     }
 }

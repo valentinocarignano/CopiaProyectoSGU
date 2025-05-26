@@ -1,9 +1,7 @@
 ﻿using Datos.Repositories.Contracts;
-using Datos.Repositories.Implementations;
-using Entidades.DTOs;
+using Entidades.DTOs.Respuestas;
 using Entidades.Entities;
 using Logica.Contracts;
-using System.Net;
 
 namespace Logica.Implementations
 {

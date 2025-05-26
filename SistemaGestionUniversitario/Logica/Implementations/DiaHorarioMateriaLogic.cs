@@ -1,12 +1,13 @@
-﻿using Logica.Contracts;
+﻿using Datos.Repositories.Contracts;
+using Logica.Contracts;
 
 namespace Logica.Implementations
 {
     public class DiaHorarioMateriaLogic : IDiaHorarioMateriaLogic
     {
-        IDiaHorarioMateriaLogic _diaHorarioMateriaRepository;
+        IDiaHorarioMateriaRepository _diaHorarioMateriaRepository;
 
-        public DiaHorarioMateriaLogic(IDiaHorarioMateriaLogic diaHorarioMateriaRepository)
+        public DiaHorarioMateriaLogic(IDiaHorarioMateriaRepository diaHorarioMateriaRepository)
         {
             _diaHorarioMateriaRepository = diaHorarioMateriaRepository;
         }

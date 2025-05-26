@@ -1,12 +1,13 @@
-﻿using Entidades.Entities;
+﻿using Entidades.DTOs.Respuestas;
 
 namespace Logica.Contracts
 {
     public interface IExamenLogic
     {
-        void AltaExamen(Examen examenAgregar);
-        Task<List<Examen>> ObtenerExamenes();
-        void BajaExamen(int idMateria, int idHorario);
-        void ActualizacionExamen(int idMateria, int idHorario, Examen examenActualizar);
+        Task AltaExamen(string nombreMateria, string descripcionDiaHorario, string tipoExamen);
+        Task<ExamenDTO> ActualizacionExamen(string nombreMateria, string descripcionDiaHorario, int idNuevoDiaHorario);
+        Task BajaExamen(string nombreMateria, string descripcionDiaHorario);
+        Task<List<ExamenDTO>> ObtenerExamenes();
+        Task<List<ExamenDTO>> ObtenerExamenesPorMateria(string nombreMateria);
     }
 }

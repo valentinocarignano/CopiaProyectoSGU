@@ -1,11 +1,7 @@
-﻿using Entidades.Entities;
-
-namespace Entidades.DTOs
+﻿namespace Entidades.DTOs.Modificar
 {
-    public class UsuarioDTO
+    public class ModificarUsuarioDTO
     {
-        public int ID { get; set; }
-        public string DNI { get; set; }
         public string Nombre { get; set; }
         public string Apellido { get; set; }
 
@@ -14,7 +10,5 @@ namespace Entidades.DTOs
 
         public string Localidad { get; set; }
         public string Direccion { get; set; }
-
-        public string RolUsuarioDescripcion { get; set; }
     }
 }

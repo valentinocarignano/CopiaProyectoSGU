@@ -1,4 +1,4 @@
-﻿using Entidades.DTOs;
+﻿using Entidades.DTOs.Respuestas;
 using Entidades.Entities;
 
 namespace Logica.Contracts
@@ -7,5 +7,8 @@ namespace Logica.Contracts
     {
         Task<List<DiaHorarioDTO>> ObtenerDiasHorarios();
         Task<DiaHorarioDTO> ObtenerDiaHorarioID(int id);
+        Task<DiaHorario?> ObtenerDiaHorarioPorDescripcionUsoInterno(string descripcionDiaHorario);
+        Task<String> ObtenerDescripcionDiaHorarioPorIDsUsoInterno(int idDia, int idHorario);
+        Task<String> ObtenerDescripcionDiaHorarioPorDiaHorario(DiaHorario diaHorario);
     }
 }

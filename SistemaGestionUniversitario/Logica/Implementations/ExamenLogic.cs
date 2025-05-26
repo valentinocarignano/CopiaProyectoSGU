@@ -1,106 +1,162 @@
 ﻿using Datos.Repositories.Contracts;
+using Entidades.DTOs.Respuestas;
 using Entidades.Entities;
 using Logica.Contracts;
-using Negocio.Contracts;
-using Shared.Entities;
-using Shared.Repositories;
-using Shared.Repositories.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Logica.Implementations
 {
     public class ExamenLogic : IExamenLogic
     {
         private IExamenRepository _examenRepository;
+        private IMateriaRepository _materiaRepository;
+        private IDiaHorarioRepository _diaHorarioRepository;
+        private IDiaHorarioLogic _diaHorarioLogic;
 
-        public ExamenLogic(IExamenRepository examenRepository)
+
+        public ExamenLogic(IExamenRepository examenRepository, IMateriaRepository materiaRepository, IDiaHorarioRepository diaHorarioRepository, IDiaHorarioLogic diaHorarioLogic)
         {
             _examenRepository = examenRepository;
+            _materiaRepository = materiaRepository;
+            _diaHorarioRepository = diaHorarioRepository;
+            _diaHorarioLogic = diaHorarioLogic;
         }
 
-        public void AltaExamen(Examen examenAgregar)
+        public async Task AltaExamen(string nombreMateria, string descripcionDiaHorario, string tipoExamen)
         {
-            Examen examenNuevo = new Examen();
-
-            if (examenAgregar == null)
-            {
-                throw new ArgumentNullException("No se ha ingresado ningun examen.");
-            }
-
-            if (examenAgregar.Materia == null)
+            Materia? materiaExistente = (await _materiaRepository.FindByConditionAsync(m => m.Nombre == nombreMateria)).FirstOrDefault();
+            DiaHorario? diaHorarioExistente = await _diaHorarioLogic.ObtenerDiaHorarioPorDescripcionUsoInterno(descripcionDiaHorario);
+            
+            if (materiaExistente == null)
             {
                 throw new ArgumentNullException("El examen debe estar vinculado a una materia.");
             }
 
-            if (examenAgregar.DiaHorario == null)
+            if (diaHorarioExistente == null)
             {
                 throw new ArgumentNullException("El examen debe estar vinculado a un dia y horario.");
             }
 
-            Examen? examenExistente = _examenRepository.FindByCondition(p => p.Materia == examenAgregar.Materia && p.DiaHorario == examenAgregar.DiaHorario).FirstOrDefault();
+            if (!ValidacionesCampos.TipoExamenEsValido(tipoExamen))
+            {
+                throw new ArgumentNullException("El tipo de examen no es valido.");
+            }
+
+            Examen? examenExistente = (await _examenRepository.FindByConditionAsync(p => p.Materia == materiaExistente && p.DiaHorario == diaHorarioExistente)).FirstOrDefault();
             
             if (examenExistente != null)
             {
                 throw new InvalidOperationException("Ya existe un examen de la materia seleccionada en el dia y hora ingresado.");
             }
 
-            examenNuevo.Tipo = examenAgregar.Tipo;
-            examenNuevo.Fecha = examenAgregar.Fecha;
-            examenNuevo.Materia = examenAgregar.Materia;
-            examenNuevo.DiaHorario = examenAgregar.DiaHorario;
+            Examen examenNuevo = new Examen()
+            {
+                Tipo = tipoExamen,
+                Materia = materiaExistente,
+                DiaHorario = diaHorarioExistente
+            };
 
-            _examenRepository.Create(examenNuevo);
-            _examenRepository.Save();
+            await _examenRepository.AddAsync(examenNuevo);
+            await _examenRepository.SaveAsync();
         }
-        public void ActualizacionExamen(int idMateria, int idDiaHorario, Examen examenActualizar)
-        {            
-            if (examenActualizar == null)
+        public async Task<ExamenDTO> ActualizacionExamen(string nombreMateria, string descripcionDiaHorario, int idNuevoDiaHorario)
+        {
+            DiaHorario? diaHorario = await _diaHorarioLogic.ObtenerDiaHorarioPorDescripcionUsoInterno(descripcionDiaHorario);
+            if (diaHorario == null)
             {
-                throw new ArgumentNullException("No se ha ingresado ningun examen.");
-            }
-            
-            if (examenActualizar.Materia == null)
-            {
-                throw new ArgumentNullException("El examen debe estar vinculado a una materia.");
-            }
-            
-            if (examenActualizar.DiaHorario == null)
-            {
-                throw new ArgumentNullException("El examen debe estar vinculado a un dia y horario.");
+                throw new ArgumentNullException("La materia no tiene un examen para el dia y horario ingresado o el dia y horario son incorrectos.");
             }
 
-            Examen? examenExistente = _examenRepository.FindByCondition(e => e.Materia.ID == idMateria && e.DiaHorario.ID == idDiaHorario).FirstOrDefault();
-            
+            Examen? examenExistente = (await _examenRepository.FindByConditionAsync(p => p.Materia.Nombre == nombreMateria && p.DiaHorario.ID == diaHorario.ID)).FirstOrDefault();
+
             if (examenExistente == null)
             {
-                throw new InvalidOperationException("El examen que se quiere actualizar no existe.");
+                throw new ArgumentNullException("El examen que se quiere actualizar no existe.");
             }
+            
+            DiaHorario? nuevoDiaHorario = (await _diaHorarioRepository.FindByConditionAsync(dh => dh.ID == idNuevoDiaHorario)).FirstOrDefault();
 
-            examenExistente.Fecha = examenActualizar.Fecha;
-            examenExistente.DiaHorario = examenActualizar.DiaHorario;
+            if (nuevoDiaHorario == null)
+            {
+                throw new ArgumentNullException("El dia y horario al que se quiere cambiar el examen no existe.");
+            }
+            
+            examenExistente.DiaHorario = nuevoDiaHorario;
 
             _examenRepository.Update(examenExistente);
-            _examenRepository.Save();
+            await _examenRepository.SaveAsync();
+
+            ExamenDTO examenExistenteDTO = new ExamenDTO()
+            {
+                ID = examenExistente.ID,
+                NombreMateria = examenExistente.Materia.Nombre,
+                DescripcionDiaHorario = await _diaHorarioLogic.ObtenerDescripcionDiaHorarioPorIDsUsoInterno(examenExistente.DiaHorario.IdDia, examenExistente.DiaHorario.IdHorario)
+            };
+
+            return examenExistenteDTO;
         }
-        public void BajaExamen(int idMateria, int idDiaHorario)
+        public async Task BajaExamen(string nombreMateria, string descripcionDiaHorario)
         {
-            Examen? examenEliminar = _examenRepository.FindByCondition(p => p.Materia.ID == idMateria && p.DiaHorario.ID == idDiaHorario).FirstOrDefault();
+            DiaHorario? diaHorario = await _diaHorarioLogic.ObtenerDiaHorarioPorDescripcionUsoInterno(descripcionDiaHorario);
+            if (diaHorario == null)
+            {
+                throw new ArgumentNullException("La materia no tiene un examen para el dia y horario ingresado o el dia y horario son incorrectos.");
+            }
+
+            Examen? examenEliminar = (await _examenRepository.FindByConditionAsync(p => p.Materia.Nombre == nombreMateria && p.DiaHorario.ID == diaHorario.ID)).FirstOrDefault();
 
             if (examenEliminar == null)
             {
                 throw new InvalidOperationException("El examen que se desea eliminar no existe.");
             }
 
-            _examenRepository.Delete(examenEliminar);
-            _examenRepository.Save();
+            _examenRepository.Remove(examenEliminar);
+            await _examenRepository.SaveAsync();
         }
-        public async Task<List<Examen>> ObtenerExamenes()
+        public async Task<List<ExamenDTO>> ObtenerExamenes()
         {
-            return await _examenRepository.GetAll();
+            try
+            {
+                List<Examen> listaExamenes = (await _examenRepository.FindAllAsync()).ToList();
+
+                if (listaExamenes == null)
+                {
+                    return null;
+                }
+
+                List<ExamenDTO> listaExamenesDTO = new List<ExamenDTO>();
+                foreach(Examen examen in listaExamenes)
+                {
+                    listaExamenesDTO.Add(new ExamenDTO()
+                    {
+                        ID = examen.ID,
+                        NombreMateria = examen.Materia.Nombre,
+                        DescripcionDiaHorario = await _diaHorarioLogic.ObtenerDescripcionDiaHorarioPorIDsUsoInterno(examen.DiaHorario.IdDia, examen.DiaHorario.IdHorario)
+                    });
+                }
+
+                return listaExamenesDTO;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"{ex}");
+            };
+        }
+        public async Task<List<ExamenDTO>> ObtenerExamenesPorMateria(string nombreMateria)
+        {
+            List<Examen> listaExamenes = (await _examenRepository.FindByConditionAsync(t => t.Materia.Nombre == nombreMateria)).ToList();
+
+            List<ExamenDTO> listaExamenesDTO = new List<ExamenDTO>();
+            foreach (Examen examen in listaExamenes)
+            {
+                listaExamenesDTO.Add(new ExamenDTO()
+                {
+                    ID = examen.ID,
+                    NombreMateria = examen.Materia.Nombre,
+                    DescripcionDiaHorario = await _diaHorarioLogic.ObtenerDescripcionDiaHorarioPorIDsUsoInterno(examen.DiaHorario.IdDia, examen.DiaHorario.IdHorario)
+                });
+            }
+
+            return listaExamenesDTO;
         }
     }
 }
