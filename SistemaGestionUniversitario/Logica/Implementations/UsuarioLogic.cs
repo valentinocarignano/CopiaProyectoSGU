@@ -132,11 +132,11 @@ namespace Logica.Implementations
                 throw new ArgumentException("Usuario no encontrado.");
             }
             
-            if (usuarioEliminar.RolUsuario.ID == 2)
+            if (usuarioEliminar.RolUsuario.Descripcion == "Profesor")
             {
                 await _profesorLogic.BajaProfesor(documento);
             }
-            else if (usuarioEliminar.RolUsuario.ID == 3)
+            else if (usuarioEliminar.RolUsuario.Descripcion == "Alumno")
             {
                 await _alumnoLogic.BajaAlumno(documento);
             }
@@ -199,11 +199,11 @@ namespace Logica.Implementations
             usuarioExistente.Localidad = localidad;
             usuarioExistente.Direccion = direccion;
 
-            if (usuarioExistente.RolUsuario.ID == 2)
+            if (usuarioExistente.RolUsuario.Descripcion == "Profesor")
             {
                 await _profesorLogic.ActualizacionProfesor(usuarioExistente);
             }
-            else if (usuarioExistente.RolUsuario.ID == 3)
+            else if (usuarioExistente.RolUsuario.Descripcion == "Alumno")
             {
                 await _alumnoLogic.ActualizacionAlumno(usuarioExistente);
             }
