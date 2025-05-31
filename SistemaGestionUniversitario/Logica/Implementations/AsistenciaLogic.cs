@@ -134,12 +134,14 @@ namespace Logica.Implementations
         public async Task<List<AsistenciaDTO>> ObtenerAsistenciasPorMateria(string nombreMateria)
         {
             // 1. Buscar la materia
-            var materia = (await _materiaRepository.FindByConditionAsync(m => m.Nombre == nombreMateria)).SingleOrDefault();
+            Materia? materia = (await _materiaRepository.FindByConditionAsync(m => m.Nombre == nombreMateria)).SingleOrDefault();
             if (materia == null)
+            {
                 throw new InvalidOperationException("No se encontró la materia.");
+            }
 
             // 2. Buscar inscripciones de esa materia
-            var inscripciones = (await _inscripcionRepository.FindByConditionAsync(i => i.IdMateria == materia.ID)).ToList();
+            List<Inscripcion> inscripciones = (await _inscripcionRepository.FindByConditionAsync(i => i.IdMateria == materia.ID)).ToList();
             if (!inscripciones.Any())
                 return new List<AsistenciaDTO>();
 
@@ -151,42 +153,27 @@ namespace Logica.Implementations
 
             List<AsistenciaDTO> resultado = new();
 
-            foreach (var asistencia in asistencias)
+            foreach (Asistencia asistencia in asistencias)
             {
                 // Obtener datos relacionados
 
-                var inscripcion = inscripciones.First(i => i.ID == asistencia.IdInscripcion);
+                Inscripcion inscripcion = inscripciones.First(i => i.ID == asistencia.IdInscripcion);
 
-                var alumno = (await _alumnoRepository.FindByConditionAsync(a => a.ID == inscripcion.IdAlumno)).FirstOrDefault();
+                Alumno? alumno = (await _alumnoRepository.FindByConditionAsync(a => a.ID == inscripcion.IdAlumno)).FirstOrDefault();
                 if (alumno == null || alumno.Usuario == null)
                     continue;
 
-                var diaHorarioMateria = (await _diaHorarioMateriaRepository.FindByConditionAsync(dhm => dhm.ID == asistencia.IdDiaHorarioMateria)).FirstOrDefault();
-                var diaHorario = diaHorarioMateria != null
-                    ? (await _diaHorarioRepository.FindByConditionAsync(dh => dh.ID == diaHorarioMateria.IdDiaHorario)).FirstOrDefault()
-                    : null;
-
-                var dia = diaHorario != null
-                    ? (await _diaRepository.FindByConditionAsync(d => d.ID == diaHorario.IdDia)).FirstOrDefault()
-                    : null;
-
-                var horario = diaHorario != null
-                    ? (await _horarioRepository.FindByConditionAsync(h => h.ID == diaHorario.IdHorario)).FirstOrDefault()
-                    : null;
-
                 // Crear DTO
-                var dto = new AsistenciaDTO
+                AsistenciaDTO asistenciaDTO = new AsistenciaDTO
                 {
                     ID = asistencia.ID,
                     DniAlumno = alumno.Usuario.DNI,
-                    Materia = materia.Nombre,
-                    Dia = dia?.Descripcion,
-                    Horario = horario?.Descripcion,
+                    NombreMateria = materia.Nombre,
                     Estado = asistencia.Estado,
                     Fecha = asistencia.Fecha
                 };
 
-                resultado.Add(dto);
+                resultado.Add(asistenciaDTO);
             }
 
             return resultado;
