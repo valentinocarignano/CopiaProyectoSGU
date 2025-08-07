@@ -19,6 +19,11 @@ namespace API.Controllers
         {
             List<RolUsuarioDTO> rolUsuarioDTO = await _rolUsuarioLogic.ObtenerRoles();
 
+            if (rolUsuarioDTO.Count == 0)
+            {
+                return NoContent();
+            }
+
             return Ok(rolUsuarioDTO);
         }
     }

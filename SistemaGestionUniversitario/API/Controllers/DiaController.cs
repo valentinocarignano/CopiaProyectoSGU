@@ -1,6 +1,8 @@
 ﻿using Entidades.DTOs.Respuestas;
 using Logica.Contracts;
+using Logica.Implementations;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace API.Controllers
 {
@@ -19,20 +21,32 @@ namespace API.Controllers
         {
             List<DiaDTO> diaDTO = await _diaLogic.ObtenerDias();
 
+            if (diaDTO.Count == 0)
+            {
+                return NoContent();
+            }
+            
             return Ok(diaDTO);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> ObtenerDiaPorID(int id)
         {
-            DiaDTO diaDTO = await _diaLogic.ObtenerDiaId(id);
-
-            if (diaDTO == null)
+            try
             {
-                return NotFound();
-            }
+                DiaDTO diaDTO = await _diaLogic.ObtenerDiaId(id);
 
-            return Ok(diaDTO);
+                if (diaDTO == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(diaDTO);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }      
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Entidades.DTOs.Respuestas;
 using Logica.Contracts;
+using Logica.Implementations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -20,20 +21,32 @@ namespace API.Controllers
         {
             List<HorarioDTO> horarioDTO = await _horarioLogic.ObtenerHorarios();
 
+            if (horarioDTO.Count == 0)
+            {
+                return NoContent();
+            }
+
             return Ok(horarioDTO);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> ObtenerHorarioId(int id)
         {
-            HorarioDTO horarioDTO = await _horarioLogic.ObtenerHorarioId(id);
-
-            if (horarioDTO == null)
+            try
             {
-                return NotFound();
-            }
+                HorarioDTO horarioDTO = await _horarioLogic.ObtenerHorarioId(id);
 
-            return Ok(horarioDTO);
+                if (horarioDTO == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(horarioDTO);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
         }
     }
 }

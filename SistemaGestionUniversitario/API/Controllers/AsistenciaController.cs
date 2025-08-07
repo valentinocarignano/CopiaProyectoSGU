@@ -1,6 +1,7 @@
 ﻿using Entidades.DTOs.Crear;
 using Entidades.DTOs.Modificar;
 using Entidades.DTOs.Respuestas;
+using Entidades.Entities;
 using Logica.Contracts;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,30 +21,57 @@ namespace API.Controllers
         [HttpGet("{nombreMateria}")]
         public async Task<IActionResult> ObtenerAsistenciasPorMateria(string nombreMateria)
         {
-            List<AsistenciaDTO> asistenciaDTO = await _asistenciaLogic.ObtenerAsistenciasPorMateria(nombreMateria);
+            try
+            {
+                List<AsistenciaDTO> asistenciaDTO = await _asistenciaLogic.ObtenerAsistenciasPorMateria(nombreMateria);
 
-            return Ok(asistenciaDTO);
+                if (asistenciaDTO.Count == 0)
+                {
+                    return NoContent();
+                }
+
+                return Ok(asistenciaDTO);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> Crear([FromBody] CrearAsistenciaDTO crearAsistenciaDTO)
         {
-            await _asistenciaLogic.AltaAsistencia(crearAsistenciaDTO.idInscripcion, crearAsistenciaDTO.idDiaHorarioMateria, crearAsistenciaDTO.Estado, crearAsistenciaDTO.Fecha);
+            try
+            {
+                await _asistenciaLogic.AltaAsistencia(crearAsistenciaDTO.idInscripcion, crearAsistenciaDTO.idDiaHorarioMateria, crearAsistenciaDTO.Estado, crearAsistenciaDTO.Fecha);
 
-            return Ok();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
         }
 
         [HttpPut("{dniAlumno}/{nombreMateria}")]
         public async Task<IActionResult> Modificar(string dniAlumno, string nombreMateria, [FromBody] ModificarAsistenciaDTO modificarAsistenciaDTO)
         {
-            AsistenciaDTO asistenciaDTO = await _asistenciaLogic.ActualizarAsistencia(dniAlumno, nombreMateria, modificarAsistenciaDTO.Fecha, modificarAsistenciaDTO.Estado);
-
-            if (asistenciaDTO == null)
+            try
             {
-                return NotFound();
-            }
+                AsistenciaDTO asistenciaDTO = await _asistenciaLogic.ActualizarAsistencia(dniAlumno, nombreMateria, modificarAsistenciaDTO.Fecha, modificarAsistenciaDTO.Estado);
 
-            return Ok(asistenciaDTO);
+                if (asistenciaDTO == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(asistenciaDTO);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }       
         }
 
         [HttpDelete("{dniAlumno}/{nombreMateria}/{fecha}")]

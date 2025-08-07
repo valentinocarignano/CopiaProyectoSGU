@@ -2,6 +2,7 @@
 using Entidades.DTOs.Modificar;
 using Entidades.DTOs.Respuestas;
 using Logica.Contracts;
+using Logica.Implementations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -22,47 +23,90 @@ namespace API.Controllers
         {
             List<NotaAlumnoDTO> notaAlumnoDTO = await _notaAlumnoLogic.ObtenerNotas();
 
+            if (notaAlumnoDTO.Count == 0)
+            {
+                return NoContent();
+            }
+
             return Ok(notaAlumnoDTO);
         }
 
         [HttpGet("nombreMateria/{nombreMateria}")]
         public async Task<IActionResult> ObtenerNotasPorMateria(string nombreMateria)
         {
-            List<NotaAlumnoDTO> notaAlumnoDTO = await _notaAlumnoLogic.ObtenerNotasPorMateria(nombreMateria);
+            try
+            {
+                List<NotaAlumnoDTO> notaAlumnoDTO = await _notaAlumnoLogic.ObtenerNotasPorMateria(nombreMateria);
 
-            return Ok(notaAlumnoDTO);
+                if (notaAlumnoDTO == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(notaAlumnoDTO);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }           
         }
 
         [HttpGet("dniAlumno/{dniAlumno}")]
         public async Task<IActionResult> ObtenerNotasPorAlumno(string dniAlumno)
         {
-            List<NotaAlumnoDTO> notaAlumnoDTO = await _notaAlumnoLogic.ObtenerNotasPorAlumno(dniAlumno);
+            try
+            {
+                List<NotaAlumnoDTO> notaAlumnoDTO = await _notaAlumnoLogic.ObtenerNotasPorAlumno(dniAlumno);
+                
+                if (notaAlumnoDTO == null)
+                {
+                    return NotFound();
+                }
 
-            return Ok(notaAlumnoDTO);
+                return Ok(notaAlumnoDTO);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> CrearNotaAlumno([FromBody] CrearNotaAlumnoDTO crearNotaAlumnoDTO)
         {
-            await _notaAlumnoLogic.AltaNotaAlumno(crearNotaAlumnoDTO.Nota, crearNotaAlumnoDTO.DNIAlumno, crearNotaAlumnoDTO.IDExamen);
+            try
+            {
+                await _notaAlumnoLogic.AltaNotaAlumno(crearNotaAlumnoDTO.Nota, crearNotaAlumnoDTO.DNIAlumno, crearNotaAlumnoDTO.IDExamen);
 
-            return Ok();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
         }
 
         [HttpPut("{dniAlumno}/{idExamen}")]
         public async Task<IActionResult> ModificarNotaAlumno(string dniAlumno, int idExamen, [FromBody] ModificarNotaAlumnoDTO modificarNotaAlumnoDTO)
         {
-            NotaAlumnoDTO notaAlumnoDTO = await _notaAlumnoLogic.ActualizacionNotaAlumno(
+            try
+            {
+                NotaAlumnoDTO notaAlumnoDTO = await _notaAlumnoLogic.ActualizacionNotaAlumno(
                 modificarNotaAlumnoDTO.Nota,
                 dniAlumno,
                 idExamen);
 
-            if (notaAlumnoDTO == null)
-            {
-                return NotFound();
-            }
+                if (notaAlumnoDTO == null)
+                {
+                    return NotFound();
+                }
 
-            return Ok(notaAlumnoDTO);
+                return Ok(notaAlumnoDTO);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }      
         }
 
         [HttpDelete("{dniAlumno}/{idExamen}")]

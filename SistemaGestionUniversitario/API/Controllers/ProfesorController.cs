@@ -1,5 +1,6 @@
 ﻿using Entidades.DTOs.Respuestas;
 using Logica.Contracts;
+using Logica.Implementations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -13,20 +14,39 @@ namespace API.Controllers
         {
             _profesorLogic = profesorLogic;
         }
+
         [HttpGet]
         public async Task<IActionResult> ObtenerProfesores()
         {
             List<ProfesorDTO> profesorDTO = await _profesorLogic.ObtenerProfesores();
 
+            if (profesorDTO.Count == 0)
+            {
+                return NoContent();
+            }
+
             return Ok(profesorDTO);
         }
+
         [HttpGet]
         [Route("{dni}")]
         public async Task<IActionResult> ObtenerProfesor(string dni)
         {
-            ProfesorDTO profesorDTO = await _profesorLogic.ObtenerProfesorDNI(dni);
+            try
+            {
+                ProfesorDTO profesorDTO = await _profesorLogic.ObtenerProfesorDNI(dni);
 
-            return Ok(profesorDTO);
+                if (profesorDTO == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(profesorDTO);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            } 
         }
     }
 }

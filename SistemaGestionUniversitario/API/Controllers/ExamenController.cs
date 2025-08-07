@@ -22,6 +22,11 @@ namespace API.Controllers
         {
             List<ExamenDTO> examenDTO = await _examenLogic.ObtenerExamenes();
 
+            if (examenDTO.Count == 0)
+            {
+                return NoContent();
+            }
+
             return Ok(examenDTO);
         }
 
@@ -30,31 +35,50 @@ namespace API.Controllers
         {
             List<ExamenDTO> examenDTO = await _examenLogic.ObtenerExamenesPorMateria(nombreMateria);
 
-            return Ok(examenDTO);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Crear([FromBody] CrearExamenDTO crearExamenDTO)
-        {
-            await _examenLogic.AltaExamen(crearExamenDTO.NombreMateria, crearExamenDTO.DescripcionDiaHorario, crearExamenDTO.TipoExamen);
-
-            return Ok();
-        }
-
-        [HttpPut("{nombreMateria}/{descripcionDiaHorario}")]
-        public async Task<IActionResult> Modificar(string nombreMateria, string descripcionDiaHorario, [FromBody] ModificarExamenDTO modificarExamenDTO)
-        {
-            ExamenDTO examenDTO = await _examenLogic.ActualizacionExamen(
-                nombreMateria,
-                descripcionDiaHorario,
-                modificarExamenDTO.IDNuevoDiaHorario);
-
             if (examenDTO == null)
             {
                 return NotFound();
             }
 
             return Ok(examenDTO);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Crear([FromBody] CrearExamenDTO crearExamenDTO)
+        {
+            try
+            {
+                await _examenLogic.AltaExamen(crearExamenDTO.NombreMateria, crearExamenDTO.DescripcionDiaHorario, crearExamenDTO.TipoExamen);
+
+                return Ok();
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpPut("{nombreMateria}/{descripcionDiaHorario}")]
+        public async Task<IActionResult> Modificar(string nombreMateria, string descripcionDiaHorario, [FromBody] ModificarExamenDTO modificarExamenDTO)
+        {
+            try
+            {
+                ExamenDTO examenDTO = await _examenLogic.ActualizacionExamen(
+                nombreMateria,
+                descripcionDiaHorario,
+                modificarExamenDTO.IDNuevoDiaHorario);
+
+                if (examenDTO == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(examenDTO);
+            }
+            catch
+            {
+                return BadRequest();
+            }   
         }
 
         [HttpDelete("{nombreMateria}/{descripcionDiaHorario}")]

@@ -22,6 +22,12 @@ namespace API.Controllers
             try
             {
                 List<InscripcionDTO> inscripcionDTO = await _inscripcionLogic.ObtenerInscripciones();
+
+                if (inscripcionDTO.Count == 0)
+                {
+                    return NoContent();
+                }
+
                 return Ok(inscripcionDTO);
             }
             catch(Exception ex)
@@ -36,6 +42,7 @@ namespace API.Controllers
             try
             {
                 await _inscripcionLogic.AltaInscripcion(crearInscripcionDTO.DNIAlumno, crearInscripcionDTO.NombreMateria);
+
                 return Ok();
             }
             catch (Exception ex)
@@ -50,6 +57,7 @@ namespace API.Controllers
             try
             {
                 await _inscripcionLogic.BajaInscripcion(nombreMateria, dniAlumno);
+
                 return Ok();
             }
             catch(Exception ex) 

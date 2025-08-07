@@ -1,4 +1,7 @@
-﻿using Logica.Contracts;
+﻿using Entidades.DTOs.Respuestas;
+using Entidades.Entities;
+using Logica.Contracts;
+using Logica.Implementations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -17,18 +20,33 @@ namespace API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var diaHorarios = await _diaHorarioLogic.ObtenerDiasHorarios();
+            List<DiaHorarioDTO> diaHorarios = await _diaHorarioLogic.ObtenerDiasHorarios();
+
+            if(diaHorarios.Count == 0)
+            {
+                return NoContent();
+            }
+
             return Ok(diaHorarios);
         }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var diaHorario = await _diaHorarioLogic.ObtenerDiaHorarioID(id);
-            if (diaHorario == null)
+            try
             {
-                return NotFound();
+                DiaHorarioDTO diaHorario = await _diaHorarioLogic.ObtenerDiaHorarioID(id);
+                
+                if (diaHorario == null)
+                {
+                    return NotFound();
+                }
+                return Ok(diaHorario);
             }
-            return Ok(diaHorario);
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }         
         }
     }
 }

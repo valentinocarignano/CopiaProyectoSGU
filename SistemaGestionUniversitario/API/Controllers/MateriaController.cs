@@ -2,6 +2,7 @@
 using Entidades.DTOs.Modificar;
 using Entidades.DTOs.Respuestas;
 using Logica.Contracts;
+using Logica.Implementations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -22,44 +23,75 @@ namespace API.Controllers
         {
             List<MateriaDTO> materiasDTO = await _materiaLogic.ObtenerMaterias();
 
+            if (materiasDTO.Count == 0)
+            {
+                return NoContent();
+            }
+
             return Ok(materiasDTO);
         }
 
         [HttpGet("{nombreMateria}")]
         public async Task<IActionResult> GetMaterias(string nombreMateria)
         {
-            MateriaDTO materiaDTO = await _materiaLogic.ObtenerMateriaNombre(nombreMateria);
+            try
+            {
+                MateriaDTO materiaDTO = await _materiaLogic.ObtenerMateriaNombre(nombreMateria);
+                
+                if (materiaDTO == null)
+                {
+                    return NotFound();
+                }
 
-            return Ok(materiaDTO);
+                return Ok(materiaDTO);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }     
         }
 
         [HttpPost]
         public async Task<IActionResult> PostMateria([FromBody] CrearMateriaDTO materia)
         {
-            await _materiaLogic.AltaMateria(
+            try
+            {
+                await _materiaLogic.AltaMateria(
                 materia.Nombre,
                 materia.ProfesoresIDs,
                 materia.DiasHorariosIDs,
                 materia.Modalidad,
                 materia.Anio);
 
-            return Ok("Materia creada correctamente.");
+                return Ok("Materia creada correctamente.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
         }
 
         [HttpPut("{nombreMateria}")]
         public async Task<IActionResult> PutMateria(string nombreMateria, [FromBody] ModificarMateriaDTO materia)
         {
-            MateriaDTO materiaDTO = await _materiaLogic.ActualizacionMateria(
+            try
+            {
+                MateriaDTO materiaDTO = await _materiaLogic.ActualizacionMateria(
                 nombreMateria,
                 materia.ProfesoresIDs,
                 materia.DiasHorariosIDs);
 
-            if (materiaDTO == null)
-            {
-                return NotFound();
-            }
+                if (materiaDTO == null)
+                {
+                    return NotFound();
+                }
 
-            return Ok(materiaDTO);
+                return Ok(materiaDTO);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }   
         }
 
         [HttpDelete("{nombreMateria}")]
