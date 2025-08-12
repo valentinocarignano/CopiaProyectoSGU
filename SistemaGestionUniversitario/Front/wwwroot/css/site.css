@@ -20,3 +20,34 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+/* Encabezado */
+.navbar-custom {
+    background-color: #a6a6a6; /* gris similar */
+    padding: 0.5rem 1rem;
+}
+
+    .navbar-custom .nav-link {
+        color: white;
+        font-weight: 500;
+        margin-right: 1rem;
+    }
+
+        .navbar-custom .nav-link:hover {
+            color: #e0e0e0;
+        }
+
+.navbar-brand img {
+    height: 40px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+#nombreAlumno {
+    margin-right: 24px;
+}
