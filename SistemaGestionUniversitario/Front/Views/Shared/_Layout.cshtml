@@ -39,6 +39,10 @@
         .dropdown-toggle::after {
             display: none !important;
         }
+        #imgLogo {
+            width: 70px;
+			height: 45px;
+        }
 
     </style>
 </head>
@@ -48,19 +52,26 @@
     <nav class="navbar navbar-expand-lg navbar-custom">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
-                <img src="logo.png" alt="UTS">
+                <img id="imgLogo" src="~/images/logoUTS.jpg" alt="UTS">
             </a>
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item"><a class="nav-link" href="#">Inicio</a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        Inicio
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Cambiar Imágen</a></li>
+                    </ul>
+				</li>
+                <li class="nav-item"><a class="nav-link" href="#">Usuarios</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">Inscripciones</a></li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                         Información Académica
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Historia Academica</a></li>
+                        <li><a class="dropdown-item" href="#">Historia Académica</a></li>
                         <li><a class="dropdown-item" href="#">Plan de Estudio</a></li>
-                        <li><a class="dropdown-item" href="#">Inasistencias</a></li>
                         <li><a class="dropdown-item" href="#">Calendario Académico</a></li>
                     </ul>
                 </li>
@@ -70,7 +81,7 @@
                         data-bs-toggle="dropdown" aria-expanded="false"
                         style="background-color: transparent; border: none; color: white;">
                     <span id="nombreAlumno" class="me-3">Alumno</span>
-                    <img src="avatar.jpg" alt="Alumno" class="user-avatar">
+                    <img src="~/images/defaultUsuario.png" alt="Alumno" class="user-avatar">
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li>
