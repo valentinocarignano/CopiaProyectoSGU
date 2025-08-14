@@ -1,4 +1,6 @@
-﻿namespace Front.Models.Respuestas
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Front.Models.Respuestas
 {
     public class UsuarioFront
     {
@@ -13,6 +15,7 @@
         public string Localidad { get; set; }
         public string Direccion { get; set; }
 
+        [Display(Name = "Rol")]
         public string RolUsuarioDescripcion { get; set; }
     }
 }

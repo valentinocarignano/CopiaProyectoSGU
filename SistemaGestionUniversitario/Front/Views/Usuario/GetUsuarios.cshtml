@@ -1,0 +1,136 @@
+﻿@model IEnumerable<Front.Models.Respuestas.UsuarioFront>
+
+@{
+    ViewData["Title"] = "GetUsuarios";
+}
+<style>                                       
+    .tabla-usuarios {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: Arial, sans-serif;                 <!-- estilo de la tabla -->
+        font-size: 14px;
+    }
+
+        .tabla-usuarios th,
+        .tabla-usuarios td {
+            border: 1px solid #ccc;
+            padding: 8px 12px;
+        }
+
+        .tabla-usuarios thead {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .tabla-usuarios td.acciones {
+            text-align: center;
+            white-space: nowrap;
+        }
+
+    .acciones .btn {
+        background: none;
+        border: none;
+        color: black;               
+        padding: 4px 6px;
+    }                                           <!-- estilo botones info y  -->
+    .acciones .btn-info:hover {
+        color: blue;
+    }
+
+    .acciones .btn-danger:hover {
+        color: red;
+    }
+</style>
+
+<div class="container mt-4">
+
+    <!-- buscador, filtro y botones de crear y modificar -->
+    <div class="d-flex justify-content-between mb-3">                         
+        <div class="d-flex align-items-center">
+            <input type="text" id="searchBox" class="form-control me-2" placeholder="Buscar..." style="width: 350px; height: 48px;">
+            <button class="btn btn-outline-secondary btn-sm ms-2" style="height:32px; padding:2px 10px;">
+                <i class="bi bi-funnel"></i> Filtro
+            </button>
+        </div>
+
+        <div>
+            <button>Modificar usuario</button>
+            <button>Crear usuario</button>
+        </div>
+    </div>
+
+    <!-- tabla de usuarios-->
+    <table class="tabla-usuarios" id="tablaUsuarios">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.RolUsuarioDescripcion)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Nombre)                
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DNI)
+                </th>
+                <th>
+                
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var usuario in Model)
+            {
+                <tr>
+                    <td>@usuario.RolUsuarioDescripcion</td>
+                    <td>@usuario.Nombre</td>
+                    <td>@usuario.DNI</td>
+                    <td class="acciones">
+                        
+                        <!-- botones de informacion y borrar -->
+                        <button class="btn btn-sm btn-info">            
+                            <i class="bi bi-info-circle"></i>
+                        </button>
+
+                        <!-- Botón que abre la confirmación -->
+                        <button type="button"
+                                class="btn btn-sm btn-danger"
+                                data-bs-toggle="modal"
+                                data-bs-target="#confirmDeleteModal"
+                                data-dni="@usuario.DNI"
+                                data-nombre="@usuario.Nombre">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+       </table>
+</div>
+
+<!-- Confirmación -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteLabel">Eliminar Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p id="deleteMessage">¿Desea eliminar al usuario seleccionado?</p>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="confirmCheckbox">
+                    <label class="form-check-label" for="confirmCheckbox">
+                        Confirmar
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post" style="display:inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger" id="btnAceptar" disabled>Aceptar</button>
+                </form>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
