@@ -48,39 +48,104 @@
 </head>
 <body>
 
+    <!-- Validacion Roles -->
+    @{
+        bool esAdmin = User.IsInRole("Administrador");
+        bool esAlumno = User.IsInRole("Alumno");
+        bool esProfesor = User.IsInRole("Profesor");
+    }
+
     <!-- Barra superior -->
     <nav class="navbar navbar-expand-lg navbar-custom">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
                 <img id="imgLogo" src="~/images/logoUTS.jpg" alt="UTS">
             </a>
+
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        Inicio
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Cambiar Imágen</a></li>
-                    </ul>
-				</li>
-                <li class="nav-item"><a class="nav-link" href="#">Usuarios</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Inscripciones</a></li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        Información Académica
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Historia Académica</a></li>
-                        <li><a class="dropdown-item" href="#">Plan de Estudio</a></li>
-                        <li><a class="dropdown-item" href="#">Calendario Académico</a></li>
-                    </ul>
-                </li>
+                
+                <!--  Menú dinámico según rol -->
+                @if (esAdmin)
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            Inicio
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Cambiar Imágen</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="#">Usuarios</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Materias</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            Información Académica
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Plan de Estudio</a></li>
+                            <li><a class="dropdown-item" href="#">Inscripciones</a></li>
+                            <li><a class="dropdown-item" href="#">Calendario Académico</a></li>
+                        </ul>
+                    </li>
+                }
+                @if (esAlumno)
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="#">Inscripciones</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            Información Académica
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Historia Académica</a></li>
+                            <li><a class="dropdown-item" href="#">Plan de Estudio</a></li>
+                            <li><a class="dropdown-item" href="#">Calendario Académico</a></li>
+                        </ul>
+                    </li>
+                }
+                @if (esProfesor)
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="#">Asistencias</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Calendario Académico</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            Exámenes
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Agregar Parcial/Final</a></li>
+                            <li><a class="dropdown-item" href="#">Cargar Notas</a></li>
+                        </ul>
+                    </li>
+                }
             </ul>
+
             <div class="dropdown">
                 <button class="btn dropdown-toggle d-flex align-items-center" type="button"
                         data-bs-toggle="dropdown" aria-expanded="false"
                         style="background-color: transparent; border: none; color: white;">
-                    <span id="nombreAlumno" class="me-3">Alumno</span>
+                        
+                        @if (esAdmin)
+                        {
+                            <span id="nombreAlumno" class="me-3">Administrador</span>
+                        }
+                        @if (esAlumno)
+                        {
+                            <span id="nombreAlumno" class="me-3">Alumno</span>
+                        }
+                        @if (esProfesor)
+                        {
+                            <span id="nombreAlumno" class="me-3">Profesor</span>
+                        } 
+                        
                     <img src="~/images/defaultUsuario.png" alt="Alumno" class="user-avatar">
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
@@ -92,10 +157,13 @@
                     </li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                        <a class="dropdown-item d-flex justify-content-between align-items-center text-danger" href="#">
-                            Cerrar sesión
-                            <i class="bi bi-power"></i>
-                        </a>
+                        <form method="post" asp-controller="Sesion" asp-action="LogOut">
+                            @Html.AntiForgeryToken()
+                            <button class="dropdown-item d-flex justify-content-between align-items-center text-danger" type="submit">
+                                Cerrar sesión
+                                <i class="bi bi-power"></i>
+                            </button>
+                        </form>
                     </li>
                 </ul>
             </div>
