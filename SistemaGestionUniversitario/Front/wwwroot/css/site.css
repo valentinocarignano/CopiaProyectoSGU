@@ -60,3 +60,27 @@ body {
     top:40%;
     left: 40%;
 }
+#bHome {
+    position: absolute;
+    top: 65%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: black;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    letter-spacing: 20px;
+    font-weight:600;
+    
+}
+    #bHome::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 25%;
+        height: 4px;
+        background: linear-gradient(90deg, black, #a6a6a6, black); /* Degradado dorado */
+        border-radius: 2px;
+    }
