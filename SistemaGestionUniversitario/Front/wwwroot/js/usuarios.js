@@ -1,4 +1,10 @@
-﻿const confirmModal = document.getElementById('confirmDeleteModal');
+﻿// =======================
+
+// MODAL ELIMINAR USUARIO
+
+// =======================
+
+const confirmModal = document.getElementById('confirmDeleteModal');
 const confirmCheckbox = document.getElementById('confirmCheckbox');
 const btnAceptar = document.getElementById('btnAceptar');
 const deleteForm = document.getElementById('deleteForm');
@@ -25,4 +31,34 @@ confirmModal.addEventListener('show.bs.modal', function (event) {
 // Habilitar aceptar solo si checkbox está marcado
 confirmCheckbox.addEventListener('change', function () {
     btnAceptar.disabled = !this.checked;
+});
+
+// =======================
+
+// MODAL INFORMACION USUARIO
+
+// =======================
+
+const infoModal = document.getElementById('informacionUsuario');
+
+infoModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+
+    // Obtener datos del botón
+    const dni = button.getAttribute('data-dni');
+    const nombre = button.getAttribute('data-nombre');
+    const apellido = button.getAttribute('data-apellido');
+    const localidad = button.getAttribute('data-localidad');
+    const direccion = button.getAttribute('data-direccion');
+    const telefono = button.getAttribute('data-telefono');
+    const rol = button.getAttribute('data-rol');
+
+    // Rellenar modal
+    document.getElementById('infoDni').textContent = dni;
+    document.getElementById('infoNombre').textContent = nombre;
+    document.getElementById('infoApellido').textContent = apellido;
+    document.getElementById('infoLocalidad').textContent = localidad;
+    document.getElementById('infoDireccion').textContent = direccion;
+    document.getElementById('infoTelefono').textContent = telefono;
+    document.getElementById('infoRol').textContent = rol;
 });
