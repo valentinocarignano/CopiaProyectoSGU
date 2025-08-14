@@ -10,5 +10,6 @@ namespace Logica.Contracts
         Task ActualizacionPassword(string dni, string actualPassword, string nuevaPassword);
         Task<List<UsuarioDTO>> ObtenerUsuarios();
         Task<UsuarioDTO> ObtenerUsuarioPorDNI(string dni);
+        Task<UsuarioLogInDTO> ValidarUsuario(string usuario, string password);
     }
 }

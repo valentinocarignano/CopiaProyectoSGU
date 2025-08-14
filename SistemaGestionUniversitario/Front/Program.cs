@@ -9,7 +9,7 @@ builder.Services.AddControllersWithViews();
 // Registro de HttpClient hacia APIs
 builder.Services.AddHttpClient("ApiPrincipal", client =>
 {
-	client.BaseAddress = new Uri("https://localhost:7012/api/");
+	client.BaseAddress = new Uri("https://localhost:7068/api/");
 });
 
 // Sesion
@@ -25,8 +25,8 @@ builder.Services.AddSession(o =>
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 	.AddCookie(o =>
 	{
-		o.LoginPath = "/Cuenta/Login";
-		o.AccessDeniedPath = "/Cuenta/AccesoDenegado";
+		o.LoginPath = "/Sesion/LogIn";
+		o.AccessDeniedPath = "/Sesion/AccesoDenegado";
 		o.ExpireTimeSpan = TimeSpan.FromMinutes(60);
 		o.SlidingExpiration = true;
 	});
@@ -50,7 +50,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// Session y Auth
+// Session y Authenticator
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -58,6 +58,6 @@ app.UseAuthorization();
 // Ruta por defecto MVC
 app.MapControllerRoute(
 	name: "default",
-	pattern: "{controller=Home}/{action=Index}/{id?}");
+	pattern: "{controller=Sesion}/{action=LogIn}/{id?}");
 
 app.Run();

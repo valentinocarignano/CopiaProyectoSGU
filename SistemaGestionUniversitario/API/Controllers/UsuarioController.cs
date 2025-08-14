@@ -139,13 +139,12 @@ namespace API.Controllers
             }
 
             [HttpPost("LogIn")]
-            public async Task<IActionResult> Login([FromBody] CrearUsuarioLogInDTO usuarioLogIn)
+            public async Task<IActionResult> LogIn([FromBody] CrearUsuarioLogInDTO usuarioLogIn)
 			{
 				UsuarioLogInDTO usuarioLogueado = await _usuarioLogic.ValidarUsuario(usuarioLogIn.Usuario, usuarioLogIn.Password);
-				if (usuarioLogueado == null) return Unauthorized();
+				if (usuarioLogueado == null) return Unauthorized(new { mensaje = "Usuario o contraseña incorrectos." });
 				return Ok(usuarioLogueado); // UsuarioLogueadoDTO con Usuario (DNI) y rol
 			}
-
 		}
 	}
 }
