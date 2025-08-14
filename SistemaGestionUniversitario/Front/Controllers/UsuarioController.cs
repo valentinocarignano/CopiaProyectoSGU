@@ -1,10 +1,12 @@
 ﻿using Front.Models.Crear;
 using Front.Models.Modificar;
 using Front.Models.Respuestas;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Front.Controllers
 {
+    [Authorize]
     public class UsuarioController : Controller
     {
         private readonly HttpClient _httpClient;
@@ -17,6 +19,7 @@ namespace Front.Controllers
         }
 
         // GET: /Usuario/GetUsuarios
+        [Authorize(Roles = "Administrador")]
         [HttpGet]
         public async Task<IActionResult> GetUsuarios()
         {
@@ -33,6 +36,7 @@ namespace Front.Controllers
         }
 
         // GET: /Usuario/GetUsuarioDNI/dni
+        [Authorize(Roles = "Administrador")]
         [HttpGet]
         public async Task<IActionResult> GetUsuarioDNI(string dni)
         {
@@ -56,6 +60,7 @@ namespace Front.Controllers
         }
 
         // POST: /Usuario
+        [Authorize(Roles = "Administrador")]
         [HttpPost]
         public async Task<IActionResult> CreateUsuario(CrearUsuarioFront usuario)
         {
@@ -81,6 +86,7 @@ namespace Front.Controllers
         }
 
         // PUT: /Usuario/dni
+        [Authorize(Roles = "Administrador")]
         [HttpPost]
         public async Task<IActionResult> UpdateUsuario(string dni, ModificarUsuarioFront usuario)
         {
@@ -118,6 +124,7 @@ namespace Front.Controllers
         }
 
         // PUT: /Usuario/actualizarPassword/dni
+        [Authorize(Roles = "Administrador, Profesor, Alumno")]
         [HttpPost]
         public async Task<IActionResult> UpdatePasswordUsuario(string dni, ModificarUsuarioFront usuario)
         {
@@ -155,6 +162,7 @@ namespace Front.Controllers
         }
 
         // DELETE: /Usuario/dni
+        [Authorize(Roles = "Administrador")]
         [HttpPost]
         public async Task<IActionResult> DeleteUsuario(string dni)
         {

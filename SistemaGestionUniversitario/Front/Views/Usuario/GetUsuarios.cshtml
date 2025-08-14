@@ -82,7 +82,7 @@
             {
                 <tr>
                     <td>@usuario.RolUsuarioDescripcion</td>
-                    <td>@usuario.Nombre</td>
+                    <td>@usuario.Nombre @usuario.Apellido</td>
                     <td>@usuario.DNI</td>
                     <td class="acciones">
                         
@@ -97,7 +97,8 @@
                                 data-bs-toggle="modal"
                                 data-bs-target="#confirmDeleteModal"
                                 data-dni="@usuario.DNI"
-                                data-nombre="@usuario.Nombre">
+                                data-nombre="@usuario.Nombre"
+                                data-apellido="@usuario.Apellido">
                             <i class="bi bi-trash"></i>
                         </button>
                     </td>
@@ -134,3 +135,5 @@
         </div>
     </div>
 </div>
+
+<script src="~/js/usuarios.js"></script>
