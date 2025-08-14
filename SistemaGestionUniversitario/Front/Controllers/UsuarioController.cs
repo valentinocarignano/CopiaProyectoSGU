@@ -28,8 +28,7 @@ namespace Front.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al obtener usuarios desde la API");
-                // TODO: Pregunta -> Redirigir a vista de error o devolver vacío??
-                return View(new List<UsuarioFront>());
+                return Content($"Error al obtener usuarios: {ex.Message}\n\n{ex.StackTrace}");
             }
         }
 
