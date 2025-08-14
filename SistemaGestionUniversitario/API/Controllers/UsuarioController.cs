@@ -75,7 +75,7 @@ namespace API.Controllers
                 catch (Exception ex)
                 {
                     return BadRequest(new { mensaje = ex.Message });
-                }  
+                }
             }
 
             // PUT: api/Usuario/dni
@@ -84,14 +84,14 @@ namespace API.Controllers
             {
                 try
                 {
-                   UsuarioDTO usuarioDTO = await _usuarioLogic.ActualizacionUsuario(
-                       dni,
-                       usuario.Nombre,
-                       usuario.Apellido,
-                       usuario.CaracteristicaTelefono,
-                       usuario.NumeroTelefono,
-                       usuario.Localidad,
-                       usuario.Direccion);
+                    UsuarioDTO usuarioDTO = await _usuarioLogic.ActualizacionUsuario(
+                        dni,
+                        usuario.Nombre,
+                        usuario.Apellido,
+                        usuario.CaracteristicaTelefono,
+                        usuario.NumeroTelefono,
+                        usuario.Localidad,
+                        usuario.Direccion);
 
                     if (usuarioDTO == null)
                     {
@@ -119,7 +119,7 @@ namespace API.Controllers
                 catch (Exception ex)
                 {
                     return BadRequest(new { mensaje = ex.Message });
-                }  
+                }
             }
 
             // DELETE: api/Usuario/dni
@@ -129,14 +129,22 @@ namespace API.Controllers
                 try
                 {
                     await _usuarioLogic.BajaUsuario(dni);
-                    
+
                     return Ok($"Usuario con DNI {dni} eliminado correctamente.");
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     return BadRequest(ex);
                 }
             }
-        }
-    }
+
+            [HttpPost("LogIn")]
+            public async Task<IActionResult> LogIn([FromBody] CrearUsuarioLogInDTO usuarioLogIn)
+			{
+				UsuarioLogInDTO usuarioLogueado = await _usuarioLogic.ValidarUsuario(usuarioLogIn.Usuario, usuarioLogIn.Password);
+				if (usuarioLogueado == null) return Unauthorized(new { mensaje = "Usuario o contraseña incorrectos." });
+				return Ok(usuarioLogueado); // UsuarioLogueadoDTO con Usuario (DNI) y rol
+			}
+		}
+	}
 }

@@ -1,22 +1,48 @@
+using Front.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Servicios
 builder.Services.AddControllersWithViews();
 
-// Registro de HttpClient
-builder.Services.AddHttpClient("ClienteUsuario", client =>
+// Registro de HttpClient hacia APIs
+builder.Services.AddHttpClient("ApiPrincipal", client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7012/api/");
+	client.BaseAddress = new Uri("https://localhost:7068/api/");
 });
 
+// Sesion
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(o =>
+{
+	o.IdleTimeout = TimeSpan.FromMinutes(30); // tiempo de inactividad
+	o.Cookie.HttpOnly = true;
+	o.Cookie.IsEssential = true;
+});
+
+// Cookie Authentication (para roles)-
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+	.AddCookie(o =>
+	{
+		o.LoginPath = "/Sesion/LogIn";
+		o.AccessDeniedPath = "/Sesion/AccesoDenegado";
+		o.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+		o.SlidingExpiration = true;
+	});
+
+// Servicio de autenticación
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IAuthenticator, Authenticator>();
+
+// App
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Manejo de errores y seguridad HTTPS
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+	app.UseExceptionHandler("/Home/Error");
+	app.UseHsts();
 }
 
 app.UseHttpsRedirection();
@@ -24,10 +50,14 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// Session y Authenticator
+app.UseSession();
+app.UseAuthentication();
 app.UseAuthorization();
 
+// Ruta por defecto MVC
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+	name: "default",
+	pattern: "{controller=Sesion}/{action=LogIn}/{id?}");
 
 app.Run();

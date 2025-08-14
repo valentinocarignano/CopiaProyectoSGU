@@ -12,7 +12,7 @@ namespace Front.Controllers
 
         public UsuarioController(IHttpClientFactory httpClientFactory, ILogger<UsuarioController> logger)
         {
-            _httpClient = httpClientFactory.CreateClient("ClienteUsuario");
+            _httpClient = httpClientFactory.CreateClient("ApiPrincipal");
             _logger = logger;
         }
 

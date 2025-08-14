@@ -2,6 +2,7 @@
 using Entidades.DTOs.Respuestas;
 using Entidades.Entities;
 using Logica.Contracts;
+using System.Net;
 
 namespace Logica.Implementations
 {
@@ -303,6 +304,26 @@ namespace Logica.Implementations
             };
 
             return usuarioDTO;
+        }
+        public async Task<UsuarioLogInDTO> ValidarUsuario(string usuario, string password)
+        {
+            Usuario? usuarioExistente = (await _usuarioRepository.FindByConditionAsync(u => u.DNI == usuario)).FirstOrDefault();
+
+            if (usuarioExistente == null)
+            {
+                return null;
+            }
+
+            if (!PasswordHelper.VerifyPassword(password, usuarioExistente.Password))
+            {
+                return null;
+            }
+
+            return new UsuarioLogInDTO
+            {
+                Usuario = usuarioExistente.DNI,
+                Rol = usuarioExistente.RolUsuario.Descripcion
+            };
         }
     }
 }
