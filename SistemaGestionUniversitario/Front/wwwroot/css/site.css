@@ -118,5 +118,8 @@ body {
 .acciones .btn-info:hover {
     color: blue;
 }
+.acciones .btn-danger:hover {
+    color: red;
+}
 
 
