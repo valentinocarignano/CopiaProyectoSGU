@@ -83,7 +83,45 @@ document.addEventListener('DOMContentLoaded', function () {
     // Eventos
     filtroRol.addEventListener('change', aplicarFiltro);
     ordenNombre.addEventListener('change', aplicarFiltro);
+    //desabilitar boton de aceptar
+    document.addEventListener("DOMContentLoaded", function ()
+    {   const form = document.querySelector("form");
+        const btnAceptar = document.getElementById("btnAceptar");
 
+        function validarFormulario()
+        {    let todoLleno = true;
+            form.querySelectorAll("input, select").forEach(field =>
+            {
+            if (field.type === "submit" || field.type === "button") return;
+
+            // Si es select y está vacío o en "Seleccione..."
+            if (field.tagName === "SELECT" && (!field.value || field.value === "")) {
+                todoLleno = false;
+            }
+            // Si es input y está vacío
+            else if (field.tagName === "INPUT" && !field.value.trim()) {
+                todoLleno = false;
+            }
+        });
+
+        if (todoLleno)
+        {
+                btnAceptar.disabled = false;
+            btnAceptar.classList.remove("btn-secondary");
+            btnAceptar.classList.add("btn-primary");
+        } else {
+                btnAceptar.disabled = true;
+            btnAceptar.classList.remove("btn-primary");
+            btnAceptar.classList.add("btn-secondary");
+        }
+    }
+        form.querySelectorAll("input, select").forEach(field =>
+        {
+                field.addEventListener("input", validarFormulario);
+            field.addEventListener("change", validarFormulario);
+        });
+
+        validarFormulario(); // Inicial
 });
 
 

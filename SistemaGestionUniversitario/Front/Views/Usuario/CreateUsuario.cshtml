@@ -1,0 +1,85 @@
+﻿@model Front.Models.Crear.CrearUsuarioFront
+
+@{
+    ViewData["Title"] = "CreateUsuario";
+}
+
+<h2 class="text-center py-2 bg-secondary text-white rounded">Nuevo Usuario</h2>
+<hr />
+
+<form asp-action="CreateUsuario">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="row">
+        <!-- Columna izquierda -->
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label asp-for="DNI" class="form-label">Usuario (DNI) *</label>
+                <input asp-for="DNI" class="form-control" />
+                <span asp-validation-for="DNI" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Nombre" class="form-label">Nombre/s *</label>
+                <input asp-for="Nombre" class="form-control" />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="CaracteristicaTelefono" class="form-label">Característica *</label>
+                <input asp-for="CaracteristicaTelefono" class="form-control" />
+                <span asp-validation-for="CaracteristicaTelefono" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Localidad" class="form-label">Localidad *</label>
+                <input asp-for="Localidad" class="form-control" />
+                <span asp-validation-for="Localidad" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Direccion" class="form-label">Dirección *</label>
+                <input asp-for="Direccion" class="form-control" />
+                <span asp-validation-for="Direccion" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- Columna derecha -->
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label">Contraseña *</label>
+                <input asp-for="Password" class="form-control" type="password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Apellido" class="form-label">Apellido/s *</label>
+                <input asp-for="Apellido" class="form-control" />
+                <span asp-validation-for="Apellido" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="NumeroTelefono" class="form-label">Teléfono *</label>
+                <input asp-for="NumeroTelefono" class="form-control" />
+                <span asp-validation-for="NumeroTelefono" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="RolUsuarioDescripcion" class="form-label">Rol *</label>
+                <select asp-for="RolUsuarioDescripcion" class="form-select">
+                    <option value="">Seleccione...</option>
+                    <option value="Administrador">Administrador</option>
+                    <option value="Usuario">Usuario</option>
+                    <option value="Profesor">Profesor</option>
+                </select>
+                <span asp-validation-for="RolUsuarioDescripcion" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="FechaContratoIngreso" class="form-label">Fecha ingreso *</label>
+                <input asp-for="FechaContratoIngreso" class="form-control" type="date" />
+                <span asp-validation-for="FechaContratoIngreso" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones -->
+    <div class="d-flex justify-content-end mt-3">
+        <input type="submit" value="Aceptar" class="btn btn-secondary me-2" id="btnAceptar" disabled />
+        <a asp-action="GetUsuarios" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+
+

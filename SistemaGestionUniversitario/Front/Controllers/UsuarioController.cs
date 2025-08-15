@@ -58,6 +58,14 @@ namespace Front.Controllers
                 return RedirectToAction("GetUsuarios");
             }
         }
+        // GET: /Usuario/CreateUsuario
+        [Authorize(Roles = "Administrador")]
+        [HttpGet]
+        public IActionResult CreateUsuario()
+        {
+            return View(); // Devuelve la vista con el formulario
+        }
+
 
         // POST: /Usuario
         [Authorize(Roles = "Administrador")]
