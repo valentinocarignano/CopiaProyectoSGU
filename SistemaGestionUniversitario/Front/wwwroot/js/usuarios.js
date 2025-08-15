@@ -44,7 +44,6 @@ const infoModal = document.getElementById('informacionUsuario');
 infoModal.addEventListener('show.bs.modal', function (event) {
     const button = event.relatedTarget;
 
-    // Obtener datos del botón
     const dni = button.getAttribute('data-dni');
     const nombre = button.getAttribute('data-nombre');
     const apellido = button.getAttribute('data-apellido');
@@ -53,10 +52,8 @@ infoModal.addEventListener('show.bs.modal', function (event) {
     const telefono = button.getAttribute('data-telefono');
     const rol = button.getAttribute('data-rol');
 
-    // Rellenar modal
+    document.getElementById('infoUsuarioLabel').textContent = `${nombre} ${apellido}`;
     document.getElementById('infoDni').textContent = dni;
-    document.getElementById('infoNombre').textContent = nombre;
-    document.getElementById('infoApellido').textContent = apellido;
     document.getElementById('infoLocalidad').textContent = localidad;
     document.getElementById('infoDireccion').textContent = direccion;
     document.getElementById('infoTelefono').textContent = telefono;
