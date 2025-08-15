@@ -3,60 +3,43 @@
 @{
     ViewData["Title"] = "GetUsuarios";
 }
-<style>                                       
-    .tabla-usuarios {
-        width: 100%;
-        border-collapse: collapse;
-        font-family: Arial, sans-serif;                 <!-- estilo de la tabla -->
-        font-size: 14px;
-    }
-
-        .tabla-usuarios th,
-        .tabla-usuarios td {
-            border: 1px solid #ccc;
-            padding: 8px 12px;
-        }
-
-        .tabla-usuarios thead {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
-
-        .tabla-usuarios td.acciones {
-            text-align: center;
-            white-space: nowrap;
-        }
-
-    .acciones .btn {
-        background: none;
-        border: none;
-        color: black;               
-        padding: 4px 6px;
-    }                                           <!-- estilo botones info y  -->
-    .acciones .btn-info:hover {
-        color: blue;
-    }
-
-    .acciones .btn-danger:hover {
-        color: red;
-    }
-</style>
 
 <div class="container mt-4">
-
     <!-- buscador, filtro y botones de crear y modificar -->
-    <div class="d-flex justify-content-between mb-3">                         
-        <div class="d-flex align-items-center">
-            <input type="text" id="searchBox" class="form-control me-2" placeholder="Buscar..." style="width: 350px; height: 48px;">
-            <button class="btn btn-outline-secondary btn-sm ms-2" style="height:32px; padding:2px 10px;">
+    <div class="d-flex align-items-center mb-3">
+      <div class="d-flex align-items-center">
+        <input type="text" id="searchBox" class="form-control me-2" placeholder="Buscar..." style="width: 250px; height: 48px;">
+
+        <div class="dropdown me-2">
+            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="btnFiltro" data-bs-toggle="dropdown" aria-expanded="false" style="height:32px; padding:2px 10px;">
                 <i class="bi bi-funnel"></i> Filtro
             </button>
+            <ul class="dropdown-menu p-3" aria-labelledby="btnFiltro" style="min-width: 200px;">
+                <li>
+                    <label>Filtrar por rol:</label>
+                    <select id="filtroRol" class="form-select mb-2">
+                        <option value="">Todos los roles</option>
+                        @foreach (var rol in Model.Select(u => u.RolUsuarioDescripcion).Distinct())
+                        {
+                            <option value="@rol">@rol</option>
+                        }
+                    </select>
+                </li>
+                <li>
+                    <label>Ordenar por nombre:</label>
+                    <select id="ordenNombre" class="form-select">
+                        <option value="">Sin orden</option>
+                        <option value="asc">Ascendente</option>
+                        <option value="desc">Descendente</option>
+                    </select>
+                </li>
+            </ul>
         </div>
-
-        <div>
-            <button>Modificar usuario</button>
-            <button>Crear usuario</button>
-        </div>
+            <div>
+                <button > Crear usuario</button>
+                <button> Modificar usuario</button>
+            </div>
+      </div>
     </div>
 
     <!-- tabla de usuarios-->
