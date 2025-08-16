@@ -3,6 +3,7 @@ using Front.Models.Modificar;
 using Front.Models.Respuestas;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace Front.Controllers
 {
@@ -75,11 +76,53 @@ namespace Front.Controllers
             try
             {
                 HttpResponseMessage response = await _httpClient.PostAsJsonAsync("Usuario", usuario);
-                
+
                 if (!response.IsSuccessStatusCode)
                 {
-                    string error = await response.Content.ReadAsStringAsync();
-                    ModelState.AddModelError("", error);
+                    string errorContent = await response.Content.ReadAsStringAsync();
+                    string mensajeError = "Error al crear usuario.";
+
+                    try
+                    {
+                        using var doc = JsonDocument.Parse(errorContent);
+                        var root = doc.RootElement;
+
+                        // ✅ Caso 1: API devuelve mensaje simple { "mensaje": "..."}
+                        if (root.TryGetProperty("mensaje", out var mensaje))
+                        {
+                            mensajeError = mensaje.GetString() ?? mensajeError;
+                            var match = System.Text.RegularExpressions.Regex.Match(mensajeError, @"\(Parameter\s'([^']+)'\)");
+                            if (match.Success)
+                            {
+                                string campo = match.Groups[1].Value;
+                                mensajeError = $"El campo {campo} es inválido.";
+                            }
+
+                            ModelState.AddModelError(string.Empty, mensajeError);
+                        }
+                        // ✅ Caso 2: JSON de validación estándar ASP.NET { "errors": { "Password": ["..."] } }
+                        else if (root.TryGetProperty("errors", out var errores))
+                        {
+                            foreach (var campo in errores.EnumerateObject())
+                            {
+                                foreach (var msg in campo.Value.EnumerateArray())
+                                {
+                                    ModelState.AddModelError(campo.Name, msg.GetString());
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // si es otro formato raro, mostrar el texto crudo
+                            ModelState.AddModelError(string.Empty, errorContent);
+                        }
+                    }
+                    catch
+                    {
+                        // si no es JSON válido, mostrar texto tal cual
+                        ModelState.AddModelError(string.Empty, errorContent);
+                    }
+
                     return View(usuario);
                 }
 
@@ -89,6 +132,7 @@ namespace Front.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al crear usuario");
+                ModelState.AddModelError(string.Empty, "Ocurrió un error inesperado.");
                 return View(usuario);
             }
         }

@@ -59,7 +59,7 @@
             </div>
             <div class="mb-3">
                 <label asp-for="RolUsuarioDescripcion" class="form-label">Rol *</label>
-                <select asp-for="RolUsuarioDescripcion" class="form-select">
+                <select asp-for="RolUsuarioDescripcion" class="form-select required-field">
                     <option value="">Seleccione...</option>
                     <option value="Administrador">Administrador</option>
                     <option value="Usuario">Usuario</option>
@@ -69,15 +69,14 @@
             </div>
             <div class="mb-3">
                 <label asp-for="FechaContratoIngreso" class="form-label">Fecha ingreso *</label>
-                <input asp-for="FechaContratoIngreso" class="form-control" type="date" />
-                <span asp-validation-for="FechaContratoIngreso" class="text-danger"></span>
+                <input asp-for="FechaContratoIngreso" class="form-control required-field" type="date" />
             </div>
         </div>
     </div>
 
     <!-- Botones -->
     <div class="d-flex justify-content-end mt-3">
-        <input type="submit" value="Aceptar" class="btn btn-secondary me-2" id="btnAceptar" disabled />
+        <input type="submit" value="Aceptar" class="btn btn-secondary me-2" id="btnAceptar" />
         <a asp-action="GetUsuarios" class="btn btn-secondary">Cancelar</a>
     </div>
 </form>
