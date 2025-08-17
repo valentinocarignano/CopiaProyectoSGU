@@ -27,26 +27,10 @@ confirmCheckbox.addEventListener('change', function () {
     btnAceptar.disabled = !this.checked;
 });
 
-//buscador
-document.getElementById('searchBox').addEventListener('input', function () {
-    let filtro = this.value.toLowerCase();
-    let filas = document.querySelectorAll('#tablaUsuarios tbody tr');
-    console.log('Filas encontradas:', filas.length);
-
-    filas.forEach(fila => {
-        let texto = fila.textContent.toLowerCase();
-        console.log('Fila:', texto);
-        fila.style.display = texto.includes(filtro) ? '' : 'none';
-    });
-    const coincideBusqueda = textoBusqueda === "" || textoFila.includes(textoBusqueda);
-});
-
-//filtro
 document.addEventListener('DOMContentLoaded', function () {
     const searchBox = document.getElementById('searchBox');
     const filtroRol = document.getElementById('filtroRol');
     const ordenNombre = document.getElementById('ordenNombre');
-    const btnAplicarFiltro = document.getElementById('btnAplicarFiltro');
     const tbody = document.querySelector('#tablaUsuarios tbody');
 
     // Copia original de todas las filas
@@ -58,13 +42,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         let filtradas = filasOriginales.filter(fila => {
             const textoFila = fila.textContent.toLowerCase();
-            const rolFila = fila.cells[0].textContent.toLowerCase();
+            const rolFila = fila.cells[0].textContent.toLowerCase(); // suponiendo que rol está en la primera columna
             const coincideBusqueda = textoFila.includes(textoBusqueda);
             const coincideRol = rolSeleccionado === "" || rolFila === rolSeleccionado;
             return coincideBusqueda && coincideRol;
         });
 
-        // Orden por nombre
+        // Ordenar por nombre (columna 1)
         const orden = ordenNombre.value;
         if (orden) {
             filtradas.sort((a, b) => {
@@ -76,12 +60,14 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
+        // Pintar de nuevo en la tabla
         tbody.innerHTML = '';
         filtradas.forEach(fila => tbody.appendChild(fila));
     }
 
     // Eventos
+    searchBox.addEventListener('input', aplicarFiltro);
     filtroRol.addEventListener('change', aplicarFiltro);
     ordenNombre.addEventListener('change', aplicarFiltro);
-
+});
     
