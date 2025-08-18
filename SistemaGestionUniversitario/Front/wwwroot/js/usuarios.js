@@ -1,4 +1,10 @@
-﻿const confirmModal = document.getElementById('confirmDeleteModal');
+﻿// =======================
+
+// MODAL ELIMINAR USUARIO
+
+// =======================
+
+const confirmModal = document.getElementById('confirmDeleteModal');
 const confirmCheckbox = document.getElementById('confirmCheckbox');
 const btnAceptar = document.getElementById('btnAceptar');
 const deleteForm = document.getElementById('deleteForm');
@@ -27,47 +33,29 @@ confirmCheckbox.addEventListener('change', function () {
     btnAceptar.disabled = !this.checked;
 });
 
-document.addEventListener('DOMContentLoaded', function () {
-    const searchBox = document.getElementById('searchBox');
-    const filtroRol = document.getElementById('filtroRol');
-    const ordenNombre = document.getElementById('ordenNombre');
-    const tbody = document.querySelector('#tablaUsuarios tbody');
+// =======================
 
-    // Copia original de todas las filas
-    const filasOriginales = Array.from(tbody.querySelectorAll('tr'));
+// MODAL INFORMACION USUARIO
 
-    function aplicarFiltro() {
-        const textoBusqueda = searchBox.value.toLowerCase();
-        const rolSeleccionado = filtroRol.value.toLowerCase();
+// =======================
 
-        let filtradas = filasOriginales.filter(fila => {
-            const textoFila = fila.textContent.toLowerCase();
-            const rolFila = fila.cells[0].textContent.toLowerCase(); // suponiendo que rol está en la primera columna
-            const coincideBusqueda = textoFila.includes(textoBusqueda);
-            const coincideRol = rolSeleccionado === "" || rolFila === rolSeleccionado;
-            return coincideBusqueda && coincideRol;
-        });
+const infoModal = document.getElementById('informacionUsuario');
 
-        // Ordenar por nombre (columna 1)
-        const orden = ordenNombre.value;
-        if (orden) {
-            filtradas.sort((a, b) => {
-                const nombreA = a.cells[1].textContent.toLowerCase();
-                const nombreB = b.cells[1].textContent.toLowerCase();
-                if (nombreA < nombreB) return orden === "asc" ? -1 : 1;
-                if (nombreA > nombreB) return orden === "asc" ? 1 : -1;
-                return 0;
-            });
-        }
+infoModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
 
-        // Pintar de nuevo en la tabla
-        tbody.innerHTML = '';
-        filtradas.forEach(fila => tbody.appendChild(fila));
-    }
+    const dni = button.getAttribute('data-dni');
+    const nombre = button.getAttribute('data-nombre');
+    const apellido = button.getAttribute('data-apellido');
+    const localidad = button.getAttribute('data-localidad');
+    const direccion = button.getAttribute('data-direccion');
+    const telefono = button.getAttribute('data-telefono');
+    const rol = button.getAttribute('data-rol');
 
-    // Eventos
-    searchBox.addEventListener('input', aplicarFiltro);
-    filtroRol.addEventListener('change', aplicarFiltro);
-    ordenNombre.addEventListener('change', aplicarFiltro);
+    document.getElementById('infoUsuarioLabel').textContent = `${nombre} ${apellido}`;
+    document.getElementById('infoDni').textContent = dni;
+    document.getElementById('infoLocalidad').textContent = localidad;
+    document.getElementById('infoDireccion').textContent = direccion;
+    document.getElementById('infoTelefono').textContent = telefono;
+    document.getElementById('infoRol').textContent = rol;
 });
-    
