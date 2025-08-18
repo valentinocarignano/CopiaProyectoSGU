@@ -43,7 +43,8 @@ namespace Logica.Implementations
             Inscripcion inscripcionNueva = new Inscripcion()
             {
                 IdAlumno = alumnoExistente.ID,
-                IdMateria = materiaExistente.ID
+                IdMateria = materiaExistente.ID,
+                Estado = false
             };
 
             await _inscripcionRepository.AddAsync(inscripcionNueva);
@@ -109,6 +110,7 @@ namespace Logica.Implementations
                         NombreAlumno = alumnoExistente.Usuario.Nombre,
                         ApellidoAlumno = alumnoExistente.Usuario.Apellido,
                         DNIAlumno = alumnoExistente.Usuario.DNI,
+                        Estado = inscripcion.Estado ? "Aprobado" : "En Curso",
                         IdMateria = materiaExistente.ID,
                         NombreMateria = materiaExistente.Nombre
                     };
@@ -158,6 +160,7 @@ namespace Logica.Implementations
                         NombreAlumno = alumnoExistente.Usuario.Nombre,
                         ApellidoAlumno = alumnoExistente.Usuario.Apellido,
                         DNIAlumno = alumnoExistente.Usuario.DNI,
+                        Estado = inscripcion.Estado ? "Aprobado" : "En Curso",
                         IdMateria = materiaFiltro.ID,
                         NombreMateria = materiaFiltro.Nombre
                     };
@@ -207,6 +210,7 @@ namespace Logica.Implementations
                         NombreAlumno = alumnoFiltro.Usuario.Nombre,
                         ApellidoAlumno = alumnoFiltro.Usuario.Apellido,
                         DNIAlumno = alumnoFiltro.Usuario.DNI,
+                        Estado = inscripcion.Estado ? "Aprobado" : "En Curso",
                         IdMateria = materiaExistente.ID,
                         NombreMateria = materiaExistente.Nombre
                     };
