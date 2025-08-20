@@ -23,7 +23,7 @@ namespace Front.Controllers
             try
             {
                 List<RolUsuarioFront>? rolesUsuario = await _httpClient.GetFromJsonAsync<List<RolUsuarioFront>>("RolUsuario");
-                return View(rolesUsuario ?? new List<RolUsuarioFront>());
+                return Json(rolesUsuario ?? new List<RolUsuarioFront>());
             }
             catch (Exception ex)
             {
