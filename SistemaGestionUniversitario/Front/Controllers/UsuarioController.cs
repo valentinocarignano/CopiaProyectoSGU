@@ -47,6 +47,25 @@ namespace Front.Controllers
                 return Content($"Error al obtener usuarios: {ex.Message}\n\n{ex.StackTrace}");
             }
         }
+        private async Task<List<SelectListItem>> ObtenerRolesParaVistaAsync()
+        {
+            try
+            {
+                // Llamamos al RolUsuarioController vía HttpClient o a un servicio compartido
+                var roles = await _httpClient.GetFromJsonAsync<List<RolUsuarioFront>>("RolUsuario");
+                return roles?.Select(r => new SelectListItem
+                {
+                    Value = r.Descripcion, // o r.Id si usás IDs
+                    Text = r.Descripcion
+                }).ToList() ?? new List<SelectListItem>();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "No se pudieron cargar los roles");
+                // Devolver lista vacía para no romper el select
+                return new List<SelectListItem>();
+            }
+        }
 
         // GET: /Usuario/GetUsuarioDNI/dni
         [Authorize(Roles = "Administrador")]
@@ -71,7 +90,7 @@ namespace Front.Controllers
                 return RedirectToAction("GetUsuarios");
             }
         }
-        // GET: /Usuario/CreateUsuario
+        // GET: /Usuario/CreateUsuario        para la vista de creación de usuario
         [Authorize(Roles = "Administrador")]
         [HttpGet]
         public async Task<IActionResult> CreateUsuario()
@@ -81,8 +100,6 @@ namespace Front.Controllers
             ViewBag.Roles = new SelectList(rolesUsuario, "Descripcion", "Descripcion");
             return View();
         }
-
-
         // POST: /Usuario
         [Authorize(Roles = "Administrador")]
         [HttpPost]
@@ -102,7 +119,6 @@ namespace Front.Controllers
                         using var doc = JsonDocument.Parse(errorContent);
                         var root = doc.RootElement;
 
-                        // ✅ Caso 1: API devuelve mensaje simple { "mensaje": "..." }
                         if (root.TryGetProperty("mensaje", out var mensaje))
                         {
                             mensajeError = mensaje.GetString() ?? mensajeError;
@@ -111,7 +127,6 @@ namespace Front.Controllers
                             if (match.Success)
                             {
                                 string campo = match.Groups[1].Value;
-                                // traducir si existe en el diccionario
                                 if (_nombresAmigables.TryGetValue(campo, out var nombreAmigable))
                                     campo = nombreAmigable;
 
@@ -120,7 +135,6 @@ namespace Front.Controllers
 
                             ModelState.AddModelError(string.Empty, mensajeError);
                         }
-                        // ✅ Caso 2: JSON de validación estándar { "errors": { "Campo": ["..."] } }
                         else if (root.TryGetProperty("errors", out var errores))
                         {
                             var listaCampos = new List<string>();
@@ -128,8 +142,6 @@ namespace Front.Controllers
                             foreach (var campo in errores.EnumerateObject())
                             {
                                 string nombreCampo = campo.Name;
-
-                                // traducir si existe en el diccionario
                                 if (_nombresAmigables.TryGetValue(nombreCampo, out var nombreAmigable))
                                     nombreCampo = nombreAmigable;
 
@@ -154,7 +166,11 @@ namespace Front.Controllers
                         ModelState.AddModelError(string.Empty, errorContent);
                     }
 
-                    return View(usuario);
+                    // 🔹 Recargar roles para que el select no se vacíe y mantenga la selección
+                    List<RolUsuarioFront>? rolesUsuario = await _httpClient.GetFromJsonAsync<List<RolUsuarioFront>>("RolUsuario");
+                    ViewBag.Roles = new SelectList(rolesUsuario, "Descripcion", "Descripcion", usuario.RolUsuarioDescripcion);
+
+                    return View(usuario); // asp-for mantiene la opción seleccionada
                 }
 
                 TempData["Success"] = "Usuario creado correctamente.";
@@ -163,11 +179,15 @@ namespace Front.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al crear usuario");
+
+                // 🔹 Recargar roles en caso de excepción
+                List<RolUsuarioFront>? rolesUsuario = await _httpClient.GetFromJsonAsync<List<RolUsuarioFront>>("RolUsuario");
+                ViewBag.Roles = new SelectList(rolesUsuario, "Descripcion", "Descripcion", usuario.RolUsuarioDescripcion);
+
                 ModelState.AddModelError(string.Empty, "Ocurrió un error inesperado.");
                 return View(usuario);
             }
         }
-
 
         // PUT: /Usuario/dni
         [Authorize(Roles = "Administrador")]
