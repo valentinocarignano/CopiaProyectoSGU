@@ -19,6 +19,18 @@ namespace Front.Controllers
             _logger = logger;
         }
 
+    private readonly Dictionary<string, string> _nombresAmigables = new()
+    {
+        { "RolUsuarioDescripcion", "Rol" },
+        { "Nombre", "Nombre" },
+        { "Apellido", "Apellido" },
+        { "Direccion", "Dirección" },
+        { "Localidad", "Localidad" },
+        { "NumeroTelefono", "Teléfono" },
+        { "CaracteristicaTelefono", "Característica" },
+        { "DNI", "Usuario (DNI)" },
+        { "Password", "Contraseña" }
+    };
         // GET: /Usuario/GetUsuarios
         [Authorize(Roles = "Administrador")]
         [HttpGet]
@@ -90,39 +102,55 @@ namespace Front.Controllers
                         using var doc = JsonDocument.Parse(errorContent);
                         var root = doc.RootElement;
 
-                        // ✅ Caso 1: API devuelve mensaje simple { "mensaje": "..."}
+                        // ✅ Caso 1: API devuelve mensaje simple { "mensaje": "..." }
                         if (root.TryGetProperty("mensaje", out var mensaje))
                         {
                             mensajeError = mensaje.GetString() ?? mensajeError;
+
                             var match = System.Text.RegularExpressions.Regex.Match(mensajeError, @"\(Parameter\s'([^']+)'\)");
                             if (match.Success)
                             {
                                 string campo = match.Groups[1].Value;
+                                // traducir si existe en el diccionario
+                                if (_nombresAmigables.TryGetValue(campo, out var nombreAmigable))
+                                    campo = nombreAmigable;
+
                                 mensajeError = $"El campo {campo} es inválido.";
                             }
 
                             ModelState.AddModelError(string.Empty, mensajeError);
                         }
-                        // ✅ Caso 2: JSON de validación estándar ASP.NET { "errors": { "Password": ["..."] } }
+                        // ✅ Caso 2: JSON de validación estándar { "errors": { "Campo": ["..."] } }
                         else if (root.TryGetProperty("errors", out var errores))
                         {
+                            var listaCampos = new List<string>();
+
                             foreach (var campo in errores.EnumerateObject())
                             {
-                                foreach (var msg in campo.Value.EnumerateArray())
-                                {
-                                    ModelState.AddModelError(campo.Name, msg.GetString());
-                                }
+                                string nombreCampo = campo.Name;
+
+                                // traducir si existe en el diccionario
+                                if (_nombresAmigables.TryGetValue(nombreCampo, out var nombreAmigable))
+                                    nombreCampo = nombreAmigable;
+
+                                if (!listaCampos.Contains(nombreCampo))
+                                    listaCampos.Add(nombreCampo);
+                            }
+
+                            if (listaCampos.Any())
+                            {
+                                string camposUnidos = string.Join(", ", listaCampos);
+                                mensajeError = $"El campo {camposUnidos} es inválido.";
+                                ModelState.AddModelError(string.Empty, mensajeError);
                             }
                         }
                         else
                         {
-                            // si es otro formato raro, mostrar el texto crudo
                             ModelState.AddModelError(string.Empty, errorContent);
                         }
                     }
                     catch
                     {
-                        // si no es JSON válido, mostrar texto tal cual
                         ModelState.AddModelError(string.Empty, errorContent);
                     }
 
@@ -139,6 +167,7 @@ namespace Front.Controllers
                 return View(usuario);
             }
         }
+
 
         // PUT: /Usuario/dni
         [Authorize(Roles = "Administrador")]

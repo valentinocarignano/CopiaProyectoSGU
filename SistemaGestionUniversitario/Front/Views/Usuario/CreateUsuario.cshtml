@@ -16,27 +16,22 @@
             <div class="mb-3">
                 <label asp-for="DNI" class="form-label">Usuario (DNI) *</label>
                 <input asp-for="DNI" class="form-control" />
-                <span asp-validation-for="DNI" class="text-danger"></span>
             </div>
             <div class="mb-3">
                 <label asp-for="Nombre" class="form-label">Nombre/s *</label>
                 <input asp-for="Nombre" class="form-control" />
-                <span asp-validation-for="Nombre" class="text-danger"></span>
             </div>
             <div class="mb-3">
                 <label asp-for="CaracteristicaTelefono" class="form-label">Característica *</label>
                 <input asp-for="CaracteristicaTelefono" class="form-control" />
-                <span asp-validation-for="CaracteristicaTelefono" class="text-danger"></span>
             </div>
             <div class="mb-3">
                 <label asp-for="Localidad" class="form-label">Localidad *</label>
                 <input asp-for="Localidad" class="form-control" />
-                <span asp-validation-for="Localidad" class="text-danger"></span>
             </div>
             <div class="mb-3">
                 <label asp-for="Direccion" class="form-label">Dirección *</label>
                 <input asp-for="Direccion" class="form-control" />
-                <span asp-validation-for="Direccion" class="text-danger"></span>
             </div>
         </div>
 
@@ -45,25 +40,22 @@
             <div class="mb-3">
                 <label asp-for="Password" class="form-label">Contraseña *</label>
                 <input asp-for="Password" class="form-control" type="password" />
-                <span asp-validation-for="Password" class="text-danger"></span>
             </div>
             <div class="mb-3">
                 <label asp-for="Apellido" class="form-label">Apellido/s *</label>
                 <input asp-for="Apellido" class="form-control" />
-                <span asp-validation-for="Apellido" class="text-danger"></span>
             </div>
             <div class="mb-3">
                 <label asp-for="NumeroTelefono" class="form-label">Teléfono *</label>
                 <input asp-for="NumeroTelefono" class="form-control" />
-                <span asp-validation-for="NumeroTelefono" class="text-danger"></span>
             </div>
             <div class="mb-3">
-            <label asp-for="RolUsuarioDescripcion" class="form-label">Rol *</label>
-            <select asp-for="RolUsuarioDescripcion" asp-items="ViewBag.Roles" class="form-select required-field">
-                <option value="">Seleccione...</option>
-            </select>
-            <span asp-validation-for="RolUsuarioDescripcion" class="text-danger"></span>
+                <label asp-for="RolUsuarioDescripcion" class="form-label">Rol *</label>
+                <select asp-for="RolUsuarioDescripcion" asp-items="ViewBag.Roles" class="form-select required-field">
+                    <option value="">Seleccione...</option>
+                </select>
             </div>
+
             <div class="mb-3">
                 <label asp-for="FechaContratoIngreso" class="form-label">Fecha ingreso *</label>
                 <input asp-for="FechaContratoIngreso" class="form-control required-field" type="date" />
