@@ -51,14 +51,17 @@
             </div>
             <div class="mb-3">
                 <label asp-for="RolUsuarioDescripcion" class="form-label">Rol *</label>
-                <select asp-for="RolUsuarioDescripcion" asp-items="ViewBag.Roles" class="form-select required-field">
+                <select asp-for="RolUsuarioDescripcion" asp-items="ViewBag.Roles"
+                        class="form-select required-field" id="rolSelect">
                     <option value="">Seleccione...</option>
                 </select>
             </div>
+
             <div class="mb-3">
-                <label asp-for="FechaContratoIngreso" class="form-label">Fecha ingreso *</label>
-                <input asp-for="FechaContratoIngreso" class="form-control required-field" type="date" />
-            </div>
+                <label id="fechaLabel" asp-for="FechaContratoIngreso" class="form-label">Fecha *</label>
+                <input asp-for="FechaContratoIngreso" class="form-control required-field"
+                       type="date" id="fechaInput" />
+            </div>     
         </div>
     </div>
 
@@ -69,5 +72,28 @@
     </div>
 </form>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const rolSelect = document.getElementById("rolSelect");
+        const fechaLabel = document.getElementById("fechaLabel");
+        const fechaInput = document.getElementById("fechaInput");
 
+        function actualizarFechaLabel() {
+            const rol = rolSelect.value;
 
+            if (rol === "Profesor") {
+                fechaLabel.textContent = "Fecha Inicio Contrato";
+                fechaInput.disabled = false;
+            } else if (rol === "Alumno") {
+                fechaLabel.textContent = "Fecha Ingreso";
+                fechaInput.disabled = false;
+            } else {
+                fechaLabel.textContent = "Fecha";
+                fechaInput.disabled = true;
+            }
+        }
+
+        actualizarFechaLabel();
+        rolSelect.addEventListener("change", actualizarFechaLabel);
+    });
+</script>
