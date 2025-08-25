@@ -19,6 +19,18 @@ namespace Front.Controllers
             _logger = logger;
         }
 
+    private readonly Dictionary<string, string> _nombresAmigables = new()
+    {
+        { "RolUsuarioDescripcion", "Rol" },
+        { "Nombre", "Nombre" },
+        { "Apellido", "Apellido" },
+        { "Direccion", "Dirección" },
+        { "Localidad", "Localidad" },
+        { "NumeroTelefono", "Teléfono" },
+        { "CaracteristicaTelefono", "Característica" },
+        { "DNI", "Usuario (DNI)" },
+        { "Password", "Contraseña" }
+    };
         // GET: /Usuario/GetUsuarios
         [Authorize(Roles = "Administrador")]
         [HttpGet]
@@ -33,6 +45,25 @@ namespace Front.Controllers
             {
                 _logger.LogError(ex, "Error al obtener usuarios desde la API");
                 return Content($"Error al obtener usuarios: {ex.Message}\n\n{ex.StackTrace}");
+            }
+        }
+        private async Task<List<SelectListItem>> ObtenerRolesParaVistaAsync()
+        {
+            try
+            {
+                // Llamamos al RolUsuarioController vía HttpClient o a un servicio compartido
+                var roles = await _httpClient.GetFromJsonAsync<List<RolUsuarioFront>>("RolUsuario");
+                return roles?.Select(r => new SelectListItem
+                {
+                    Value = r.Descripcion, // o r.Id si usás IDs
+                    Text = r.Descripcion
+                }).ToList() ?? new List<SelectListItem>();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "No se pudieron cargar los roles");
+                // Devolver lista vacía para no romper el select
+                return new List<SelectListItem>();
             }
         }
 
@@ -59,7 +90,7 @@ namespace Front.Controllers
                 return RedirectToAction("GetUsuarios");
             }
         }
-        // GET: /Usuario/CreateUsuario
+        // GET: /Usuario/CreateUsuario        para la vista de creación de usuario
         [Authorize(Roles = "Administrador")]
         [HttpGet]
         public async Task<IActionResult> CreateUsuario()
@@ -69,8 +100,6 @@ namespace Front.Controllers
             ViewBag.Roles = new SelectList(rolesUsuario, "Descripcion", "Descripcion");
             return View();
         }
-
-
         // POST: /Usuario
         [Authorize(Roles = "Administrador")]
         [HttpPost]
@@ -90,43 +119,58 @@ namespace Front.Controllers
                         using var doc = JsonDocument.Parse(errorContent);
                         var root = doc.RootElement;
 
-                        // ✅ Caso 1: API devuelve mensaje simple { "mensaje": "..."}
                         if (root.TryGetProperty("mensaje", out var mensaje))
                         {
                             mensajeError = mensaje.GetString() ?? mensajeError;
+
                             var match = System.Text.RegularExpressions.Regex.Match(mensajeError, @"\(Parameter\s'([^']+)'\)");
                             if (match.Success)
                             {
                                 string campo = match.Groups[1].Value;
+                                if (_nombresAmigables.TryGetValue(campo, out var nombreAmigable))
+                                    campo = nombreAmigable;
+
                                 mensajeError = $"El campo {campo} es inválido.";
                             }
 
                             ModelState.AddModelError(string.Empty, mensajeError);
                         }
-                        // ✅ Caso 2: JSON de validación estándar ASP.NET { "errors": { "Password": ["..."] } }
                         else if (root.TryGetProperty("errors", out var errores))
                         {
+                            var listaCampos = new List<string>();
+
                             foreach (var campo in errores.EnumerateObject())
                             {
-                                foreach (var msg in campo.Value.EnumerateArray())
-                                {
-                                    ModelState.AddModelError(campo.Name, msg.GetString());
-                                }
+                                string nombreCampo = campo.Name;
+                                if (_nombresAmigables.TryGetValue(nombreCampo, out var nombreAmigable))
+                                    nombreCampo = nombreAmigable;
+
+                                if (!listaCampos.Contains(nombreCampo))
+                                    listaCampos.Add(nombreCampo);
+                            }
+
+                            if (listaCampos.Any())
+                            {
+                                string camposUnidos = string.Join(", ", listaCampos);
+                                mensajeError = $"El campo {camposUnidos} es inválido.";
+                                ModelState.AddModelError(string.Empty, mensajeError);
                             }
                         }
                         else
                         {
-                            // si es otro formato raro, mostrar el texto crudo
                             ModelState.AddModelError(string.Empty, errorContent);
                         }
                     }
                     catch
                     {
-                        // si no es JSON válido, mostrar texto tal cual
                         ModelState.AddModelError(string.Empty, errorContent);
                     }
 
-                    return View(usuario);
+                    // 🔹 Recargar roles para que el select no se vacíe y mantenga la selección
+                    List<RolUsuarioFront>? rolesUsuario = await _httpClient.GetFromJsonAsync<List<RolUsuarioFront>>("RolUsuario");
+                    ViewBag.Roles = new SelectList(rolesUsuario, "Descripcion", "Descripcion", usuario.RolUsuarioDescripcion);
+
+                    return View(usuario); // asp-for mantiene la opción seleccionada
                 }
 
                 TempData["Success"] = "Usuario creado correctamente.";
@@ -135,6 +179,11 @@ namespace Front.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al crear usuario");
+
+                // 🔹 Recargar roles en caso de excepción
+                List<RolUsuarioFront>? rolesUsuario = await _httpClient.GetFromJsonAsync<List<RolUsuarioFront>>("RolUsuario");
+                ViewBag.Roles = new SelectList(rolesUsuario, "Descripcion", "Descripcion", usuario.RolUsuarioDescripcion);
+
                 ModelState.AddModelError(string.Empty, "Ocurrió un error inesperado.");
                 return View(usuario);
             }
