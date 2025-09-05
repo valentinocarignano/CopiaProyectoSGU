@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  PROJECT_DIR: SistemaGestionUniversitario
+  PROJECT_DIR: SistemaGestionUniversitario/API
 
 jobs:
   build:
@@ -69,3 +69,4 @@ jobs:
           package: .
 
           
+
