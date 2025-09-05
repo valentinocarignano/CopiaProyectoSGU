@@ -27,7 +27,8 @@ namespace Datos.Contexts
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Data Source=localhost\\SQLEXPRESS;Initial Catalog=SistemaGestionUniversitario;Integrated Security=True;TrustServerCertificate=true;");
+            //optionsBuilder.UseSqlServer("Data Source=localhost\\SQLEXPRESS;Initial Catalog=SistemaGestionUniversitario;Integrated Security=True;TrustServerCertificate=true;");
+            builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
