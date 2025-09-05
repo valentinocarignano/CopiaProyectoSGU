@@ -25,10 +25,10 @@ namespace Datos.Contexts
         public DbSet<RolUsuario> RolUsuario { get; set; }
         public DbSet<Usuario> Usuario { get; set; }
 
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    optionsBuilder.UseSqlServer("Data Source=localhost\\SQLEXPRESS;Initial Catalog=SistemaGestionUniversitario;Integrated Security=True;TrustServerCertificate=true;");
-        //}
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer("Data Source=localhost\\SQLEXPRESS;Initial Catalog=SistemaGestionUniversitario;Integrated Security=True;TrustServerCertificate=true;");
+        }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.UseCollation("Latin1_General_CI_AS");
